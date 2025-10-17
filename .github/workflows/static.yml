@@ -11,7 +11,7 @@
     <meta name="description" content="Login page">
     <meta name="author" content="">
 
-    <title>IFIT - Login</title>
+    <title>Fitcrol - Login</title>
 
     <!-- Custom fonts for this template-->
     <link href="{% static 'fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -41,7 +41,7 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Bem-vindo ao IFIT!</h1>
+                                        <h1 class="h4 text-gray-900 mb-4">Bem-vindo ao Fitcrol!</h1>
                                     </div>
 
                                     <!-- Exibir mensagens de erro -->
