@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import UsuarioCreate, PerfilUpdate, PerfilList
+from .views import UsuarioCreate, PerfilUpdate, PerfilList, PerfilDetailView
 from . import views
 
 urlpatterns = [
@@ -17,6 +17,7 @@ urlpatterns = [
     path('registrar/', UsuarioCreate.as_view(), name='registrar'),
     path('atualizar-dados/', PerfilUpdate.as_view(), name='atualizar-dados'),
     path('listar/usersauth/', PerfilList.as_view(), name='listar-usersauth'),
+    path('detalhes-usuario/<int:pk>/', PerfilDetailView.as_view(), name='detalhes-usuario'),
 
     path('calcular-imc/', views.calcular_imc, name='calcular_imc'),
     path('progresso-imc/', views.progresso_imc, name='progresso_imc'),

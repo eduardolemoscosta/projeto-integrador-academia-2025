@@ -1,5 +1,6 @@
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.views.generic import DetailView
 from django.contrib.auth.models import User, Group
 from .forms import UsuarioForm
 from django.urls import reverse_lazy
@@ -7,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from .models import Perfil
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 
 from .models import IMCRegistro
 from .forms import IMCForm
@@ -99,7 +102,11 @@ def calcular_imc(request):
             return redirect('progresso_imc')
     else:
         form = IMCForm()
-    return render(request, 'calcular_imc.html', {'form': form})
+    
+    # Get the last 10 IMC calculations for the user
+    historico = IMCRegistro.objects.filter(user=request.user).order_by('-data_registro')[:10]
+    
+    return render(request, 'calcular_imc.html', {'form': form, 'historico': historico})
 
 @login_required
 def progresso_imc(request):
@@ -113,3 +120,44 @@ def apagar_imc(request, imc_id):
     imc_registro.delete()
     
     return redirect('progresso_imc')
+
+
+class PerfilDetailView(LoginRequiredMixin, DetailView):
+    login_url = reverse_lazy('login')
+    model = Perfil
+    template_name = 'cadastros/detalhes_usuario.html'
+    context_object_name = 'perfil'
+
+    def get_object(self, queryset=None):
+        perfil = get_object_or_404(Perfil, pk=self.kwargs['pk'])
+        
+        # Only staff can view other users' profiles, regular users can only view their own
+        if not self.request.user.is_staff and perfil.usuario != self.request.user:
+            raise PermissionDenied("Você não tem permissão para visualizar este perfil.")
+        
+        return perfil
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        perfil = self.get_object()
+        
+        # Get IMC history for this user
+        imc_history = IMCRegistro.objects.filter(user=perfil.usuario).order_by('-data_registro')
+        
+        # Calculate statistics
+        total_registros = imc_history.count()
+        if total_registros > 0:
+            imc_sum = sum(registro.imc for registro in imc_history)
+            imc_medio = imc_sum / total_registros
+            ultimo_imc = imc_history[0].imc if imc_history else None
+        else:
+            imc_medio = None
+            ultimo_imc = None
+        
+        context['imc_history'] = imc_history
+        context['titulo'] = f"Perfil de {perfil.nome_completo or perfil.usuario.username}"
+        context['total_registros'] = total_registros
+        context['imc_medio'] = imc_medio
+        context['ultimo_imc'] = ultimo_imc
+        
+        return context
