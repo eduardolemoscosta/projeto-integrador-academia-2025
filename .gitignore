@@ -1,0 +1,26 @@
+# Banco de Dados
+db.sqlite3
+*.sqlite3
+
+# Python / Django
+__pycache__/
+*.pyc
+
+# Ambiente Virtual
+/venv/
+/.venv/
+/env/
+/.env/
+
+# Arquivos de Ambiente (SENHAS)
+.env
+.env.*
+*.env
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
