@@ -8,6 +8,7 @@
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item active">Eventos</li>
     </ol>
+    {% if user.is_staff %}
     <div class="row mb-3">
         <div class="col-12 col-sm-auto">
             <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary d-flex align-items-center">
@@ -15,6 +16,7 @@
             </a>
         </div>
     </div>
+    {% endif %}
 
     <div class="card">
         <div class="card-header">
@@ -43,8 +45,12 @@
                             <td style="color: #6c757d;" class="fs-6">{{ task.end_date }}</td>
                             <td style="color: #6c757d;" class="fs-6">{{ task.usuario.username }}</td>
                             <td>
+                                {% if user.is_staff %}
                                 <a href="{% url 'delete-task' task.id %}" class="text-danger me-2"><i class="fas fa-trash"></i></a>
                                 <a href="{% url 'edit-task' task.id %}" class="text-warning"><i class="fas fa-edit"></i></a>
+                                {% else %}
+                                <span class="text-muted">Apenas visualização</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
