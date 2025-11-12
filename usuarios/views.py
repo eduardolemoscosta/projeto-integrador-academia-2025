@@ -18,25 +18,40 @@ from django.contrib.auth.decorators import login_required
 
 
 class UsuarioCreate(CreateView):
-    template_name = "cadastros/form_add_user.html"
+    template_name = "usuarios/signup.html"
     form_class = UsuarioForm
-    success_url = reverse_lazy('inicio')
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         
         grupo, _ = Group.objects.get_or_create(name="Docente") #ou Discentes
 
+        # Get nome_completo and email from form before saving
+        nome_completo = form.cleaned_data.get('nome_completo')
+        email = form.cleaned_data.get('email')
+        
         url = super().form_valid(form)
+
+        # Save email to User model
+        if email:
+            self.object.email = email
+            self.object.save()
 
         self.object.groups.add(grupo)
         
-        Perfil.objects.get_or_create(usuario=self.object)
+        # Create or get Perfil and set nome_completo and email
+        perfil, _ = Perfil.objects.get_or_create(usuario=self.object)
+        if nome_completo:
+            perfil.nome_completo = nome_completo
+        if email:
+            perfil.email = email
+        perfil.save()
 
         return url
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['titulo'] = "Registro de novo usuário"
+        context['titulo'] = "Criar uma conta"
         context['botao'] = "Cadastrar"
         return context
 
@@ -103,10 +118,7 @@ def calcular_imc(request):
     else:
         form = IMCForm()
     
-    # Get the last 10 IMC calculations for the user
-    historico = IMCRegistro.objects.filter(user=request.user).order_by('-data_registro')[:10]
-    
-    return render(request, 'calcular_imc.html', {'form': form, 'historico': historico})
+    return render(request, 'calcular_imc.html', {'form': form})
 
 @login_required
 def progresso_imc(request):

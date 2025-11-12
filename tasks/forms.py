@@ -32,11 +32,6 @@ class TaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["usuario"] = forms.ModelChoiceField(
-            queryset=User.objects.all(),
-            required=True,
-            label="Destinatário do Evento",
-            widget=forms.Select(
-                attrs={ "class": "form-select", "aria-label": "Selecionar usuário" }
-            ),
-        )
+        # Hide usuario field - it will be set automatically to the current staff user
+        if 'usuario' in self.fields:
+            del self.fields['usuario']
