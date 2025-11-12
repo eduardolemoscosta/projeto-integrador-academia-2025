@@ -197,18 +197,19 @@ class TrainingExercicioList(LoginRequiredMixin, ListView):
     context_object_name = 'programas'
 
     def get_queryset(self):
+        # Se o usuário é staff, ele pode ver todos os programas
+        if self.request.user.is_staff:
+            queryset = TrainingExercicio.objects.all()
+        else:
+            # Usuário comum só pode ver os próprios programas
+            queryset = TrainingExercicio.objects.filter(usuario=self.request.user)
+        
+        # Aplicar o filtro de nome_programa, se existir
         txt_nome = self.request.GET.get('nome_programa')
         if txt_nome:
-            programa = TrainingExercicio.objects.filter(nome__icontains=txt_nome)
-        else:
-            programa = TrainingExercicio.objects.all()
-        return programa
-
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return TrainingExercicio.objects.all() 
-        else:
-            return TrainingExercicio.objects.filter(usuario=self.request.user) 
+            queryset = queryset.filter(nome__icontains=txt_nome)
+        
+        return queryset 
 
 
 class AvaliacaoList(LoginRequiredMixin, ListView):
@@ -218,19 +219,19 @@ class AvaliacaoList(LoginRequiredMixin, ListView):
     paginate_by = 1
 
     def get_queryset(self):
+        # Se o usuário é staff, ele pode ver todas as avaliações
+        if self.request.user.is_staff:
+            queryset = Avaliacao.objects.all()
+        else:
+            # Usuário comum só pode ver as próprias avaliações
+            queryset = Avaliacao.objects.filter(usuario=self.request.user)
+        
+        # Aplicar o filtro de nome_completo, se existir
         txt_nome = self.request.GET.get('nome_completo')
         if txt_nome:
-            programa = Avaliacao.objects.filter(nome__icontains=txt_nome)
-        else:
-            programa = Avaliacao.objects.all()
-        return programa
-    
-
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return Avaliacao.objects.all()  
-        else:
-            return Avaliacao.objects.filter(usuario=self.request.user)  
+            queryset = queryset.filter(nome__icontains=txt_nome)
+        
+        return queryset  
 
 
 

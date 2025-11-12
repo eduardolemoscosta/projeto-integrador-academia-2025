@@ -32,7 +32,7 @@
             </thead>
             <tbody>
                 {% for user in object_list %}
-                <tr class="user-row">
+                <tr class="user-row" onclick="window.location.href='{% url 'detalhes-usuario' user.pk %}'" style="cursor: pointer;">
                     <td>{{ user.pk }}</td>
                     <td>{{ user.usuario }}</td>
                     <td>{{ user.matricula }}</td>
