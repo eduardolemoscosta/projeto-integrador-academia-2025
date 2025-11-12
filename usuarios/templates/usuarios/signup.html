@@ -7,10 +7,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Página de Login">
+    <meta name="description" content="Página de Cadastro">
     <meta name="author" content="">
 
-    <title>Fitcrol - Login</title>
+    <title>Fitcrol - Cadastro</title>
 
     <!-- FontAwesome para ícones -->
     <link href="{% static 'fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
@@ -30,7 +30,7 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <h1>Bem-vindo ao Fitcrol</h1>
-                        <h4>Acesse o sistema</h4>
+                        <h4>Crie sua conta</h4>
                     </div>
 
                     <!-- Exibir mensagens de erro -->
@@ -47,29 +47,47 @@
                         </div>
                     {% endif %}
 
-                    <!-- Formulário de Login -->
+                    <!-- Formulário de Cadastro -->
                     <form class="user form-container" method="post">
                         {% csrf_token %}
                         
                         <div class="form-group mb-4 auth-form-group">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Usuário</label>
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+                        
+                        <div class="form-group mb-4 auth-form-group">
+                            <label for="{{ form.nome_completo.id_for_label }}" class="form-label">Nome Completo</label>
+                            {{ form.nome_completo }}
+                        </div>
+                        
+                        <div class="form-group mb-4 auth-form-group">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Nome de Usuário</label>
                             {{ form.username }}
                         </div>
                         
                         <div class="form-group mb-4 auth-form-group">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">Senha</label>
-                            {{ form.password }}
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">Senha</label>
+                            {{ form.password1 }}
+                            {% if form.password1.help_text %}
+                                <small class="form-text text-muted">{{ form.password1.help_text }}</small>
+                            {% endif %}
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4 auth-btn-primary">Entrar</button>
+                        <div class="form-group mb-4 auth-form-group">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Senha</label>
+                            {{ form.password2 }}
+                            {% if form.password2.help_text %}
+                                <small class="form-text text-muted">{{ form.password2.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4 auth-btn-primary">Cadastrar</button>
                     </form>
 
                     <hr>
                     <div class="text-center">
-                        <a class="small auth-link" href="{% url 'signup' %}">Criar uma conta</a>
-                    </div>
-                    <div class="text-center mt-2">
-                        <a class="small auth-link" href="{% url 'password_reset' %}">Esqueceu sua senha?</a>
+                        <a class="small auth-link" href="{% url 'login' %}">Já tem uma conta? Faça login</a>
                     </div>
                 </div>
             </div>
@@ -83,3 +101,4 @@
 
 </body>
 </html>
+

@@ -8,14 +8,13 @@ from datetime import datetime, date, timedelta
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.views import View
-from braces.views import LoginRequiredMixin, GroupRequiredMixin
+from braces.views import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
 
-class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
-    group_required = u"Administrador"
+class TaskListView(LoginRequiredMixin, ListView):
     login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/list.html'
@@ -24,32 +23,39 @@ class TaskListView(GroupRequiredMixin, LoginRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
+        # Show all events created by staff to all users
+        # Staff can see all events, regular users can only see staff-created events
         if self.request.user.is_staff:
             return Task.objects.all()
         else:
-            return Task.objects.filter(usuario=self.request.user)
+            # Regular users see events created by staff users
+            return Task.objects.filter(usuario__is_staff=True)
 
 class TaskDetailView(DetailView):
     model = Task
     template_name = 'tasks/task.html'
     context_object_name = 'task'
 
-class TaskCreateView(GroupRequiredMixin, LoginRequiredMixin, CreateView):
-    group_required = u"Administrador"
+class TaskCreateView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
     template_name = 'tasks/addtask.html'
     success_url = reverse_lazy('calendar')
 
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return Task.objects.all() 
-        else:
-            return Task.objects.filter(usuario=self.request.user)  
+    def dispatch(self, request, *args, **kwargs):
+        # Only staff can create events
+        if not request.user.is_staff:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Apenas funcionários podem criar eventos.")
+        return super().dispatch(request, *args, **kwargs)
 
-class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
-    group_required = u"Administrador"
+    def form_valid(self, form):
+        # Set the usuario to the current staff user
+        form.instance.usuario = self.request.user
+        return super().form_valid(form)  
+
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
     model = Task
     form_class = TaskForm
@@ -57,22 +63,35 @@ class TaskUpdateView(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
     context_object_name = 'task'
     success_url = reverse_lazy('task-list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only staff can edit events
+        if not request.user.is_staff:
+            raise PermissionDenied("Apenas funcionários podem editar eventos.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
         task = super().get_object(queryset)
-        if task.usuario != self.request.user and not self.request.user.is_staff:
+        # Only staff can edit events
+        if not self.request.user.is_staff:
             raise PermissionDenied("Você não tem permissão para editar esta tarefa.")
         return task
 
-class TaskDeleteView(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
-    group_required = u"Administrador"
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
     login_url = reverse_lazy('login')
     model = Task
     template_name = 'tasks/deletetask.html'
     success_url = reverse_lazy('task-list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only staff can delete events
+        if not request.user.is_staff:
+            raise PermissionDenied("Apenas funcionários podem deletar eventos.")
+        return super().dispatch(request, *args, **kwargs)
+
     def delete(self, request, *args, **kwargs):
         task = self.get_object()
-        if task.usuario != request.user and not request.user.groups.filter(name='Administrador').exists():
+        # Only staff can delete events
+        if not request.user.is_staff:
             raise PermissionDenied("Você não tem permissão para deletar esta tarefa.")
         messages.info(request, 'Tarefa deletada com sucesso.')
         return super().delete(request, *args, **kwargs)
@@ -86,12 +105,13 @@ class CalendarView(TemplateView):
         user = self.request.user
         is_authenticated = user.is_authenticated
 
-        if user.is_superuser:
+        if user.is_superuser or user.is_staff:
             events_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
         elif not is_authenticated:
             events_today = Task.objects.none()
         else:
-            events_today = Task.objects.filter(usuario=user, start_date__lte=today, end_date__gte=today)
+            # Regular users see events created by staff
+            events_today = Task.objects.filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
 
         context['events_today'] = events_today
         return context
@@ -99,12 +119,13 @@ class CalendarView(TemplateView):
 class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
         is_authenticated = request.user.is_authenticated
-        if request.user.is_superuser:  
+        if request.user.is_superuser or request.user.is_staff:  
             tasks = Task.objects.all()
         elif not is_authenticated:
             tasks = Task.objects.none()
         else:
-            tasks = Task.objects.filter(usuario=request.user)
+            # Regular users see events created by staff
+            tasks = Task.objects.filter(usuario__is_staff=True)
 
         events = []
         for task in tasks:
@@ -135,22 +156,15 @@ class EventCountView(LoginRequiredMixin, TemplateView):
         tasks_week = Task.objects.none()
         total_tasks = Task.objects.none()
 
-        if user.is_superuser:
+        if user.is_superuser or user.is_staff:
             tasks_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
             tasks_week = Task.objects.filter(start_date__gte=start_of_week, end_date__lte=end_of_week)
             total_tasks = Task.objects.all()
         else:
-            is_discente = user.groups.filter(name='Discente').exists()
-            is_docente = user.groups.filter(name='Docente').exists()
-
-            if is_discente or is_docente:
-                tasks_today = Task.objects.filter(usuario=user, start_date__lte=today, end_date__gte=today)
-                tasks_week = Task.objects.filter(usuario=user, start_date__gte=start_of_week, end_date__lte=end_of_week)
-                total_tasks = Task.objects.filter(usuario=user)
-            else:
-                tasks_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
-                tasks_week = Task.objects.filter(start_date__gte=start_of_week, end_date__lte=end_of_week)
-                total_tasks = Task.objects.all()
+            # Regular users see events created by staff
+            tasks_today = Task.objects.filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.filter(usuario__is_staff=True, start_date__gte=start_of_week, end_date__lte=end_of_week)
+            total_tasks = Task.objects.filter(usuario__is_staff=True)
 
         context['tasks_today_count'] = tasks_today.count()
         context['tasks_week_count'] = tasks_week.count()
@@ -162,15 +176,12 @@ class ChartYear(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         year_data = [0] * 12
         user = request.user
-        is_discente = user.groups.filter(name='Discente').exists()
-        is_docente = user.groups.filter(name='Docente').exists()
         
-        if is_discente:
-            tasks = Task.objects.filter(usuario=user)
-        elif is_docente:
-            tasks = Task.objects.filter(usuario=user)
-        else:
+        if user.is_superuser or user.is_staff:
             tasks = Task.objects.all()
+        else:
+            # Regular users see events created by staff
+            tasks = Task.objects.filter(usuario__is_staff=True)
 
         for task in tasks:
             if task.start_date:
