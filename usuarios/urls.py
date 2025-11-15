@@ -22,6 +22,8 @@ urlpatterns = [
 
     path('calcular-imc/', views.calcular_imc, name='calcular_imc'),
     path('progresso-imc/', views.progresso_imc, name='progresso_imc'),
-    path('apagar-imc/<int:imc_id>/', views.apagar_imc, name='apagar_imc'),  
+    path('apagar-imc/<int:imc_id>/', views.apagar_imc, name='apagar_imc'),
+    path('adicionar-problema/', views.adicionar_problema_medico, name='adicionar_problema'),
 
 ]
+

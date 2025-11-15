@@ -10,9 +10,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from .models import ProblemaMedico
+from .forms import ProblemaMedicoForm 
+from .models import Perfil, IMCRegistro, ProblemaMedico 
 
-from .models import IMCRegistro
 from .forms import IMCForm
+from .models import ProblemaMedico, Perfil 
 
 from django.contrib.auth.decorators import login_required
 
@@ -172,4 +175,70 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
         context['imc_medio'] = imc_medio
         context['ultimo_imc'] = ultimo_imc
         
+   # Esta função começa com 4 espaços
+    def get_context_data(self, **kwargs):
+    # 8 espaços
+        context = super().get_context_data(**kwargs)
+        perfil = self.get_object()
+
+    # Get IMC History for this user
+    # 8 espaços
+        imc_history = IMCRegistro.objects.filter(user=perfil.usuario).order_by('-data_registro')
+
+    # Get IMC calculation
+    # 8 espaços
+        if imc_history:
+            total_registros = imc_history.count()
+            imc_sum = sum(registro.imc for registro in imc_history)
+            imc_medio = imc_sum / total_registros
+            ultimo_imc = imc_history[0].imc if imc_history else None
+        else:
+            total_registros = 0
+            imc_medio = None
+            ultimo_imc = None
+
+    # 8 espaços
+        context['imc_history'] = imc_history
+        context['titulo'] = f"Perfil de {perfil.nome_completo or perfil.usuario.username}"
+        context['total_registros'] = total_registros
+        context['imc_medio'] = imc_medio
+        context['ultimo_imc'] = ultimo_imc
+
+    #
+    # AQUI ESTÁ A LINHA NOVA QUE ADICIONAMOS:
+    #
+    # 8 espaços
+        context['meus_problemas'] = ProblemaMedico.objects.filter(usuario=perfil.usuario)
+
+    # 8 espaços
         return context
+
+@login_required # Garante que só usuários logados acedam
+def adicionar_problema_medico(request):
+    if request.method == 'POST':
+        # Se o usuário enviou o formulário
+        form = ProblemaMedicoForm(request.POST)
+        if form.is_valid():
+            # Salva no banco, mas não permanentemente ainda
+            problema = form.save(commit=False)
+            
+            # ATRIBUI O USUÁRIO LOGADO! Esta é a ligação.
+            problema.usuario = request.user 
+            
+            # Agora sim, salva no banco
+            problema.save()
+            
+            # Redireciona para outra página (ex: o perfil)
+            # Mude 'nome_da_url_do_perfil' para o nome real da sua URL de perfil
+            return redirect('detalhes-usuario', pk=request.user.id)
+    else:
+        
+        form = ProblemaMedicoForm()
+
+    context = {
+        'form': form
+    }
+
+    
+    return render(request, 'usuarios/adicionar_problema.html', context)
+

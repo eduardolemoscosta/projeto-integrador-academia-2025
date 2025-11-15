@@ -25,3 +25,14 @@ class IMCRegistro(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.data_registro.strftime("%d/%m/%Y")}'
+
+class ProblemaMedico(models.Model):
+    # Esta linha liga o problema ao usuário
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="problemas")
+
+    descricao = models.TextField()
+
+    data_registro = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.descricao[:30]}"

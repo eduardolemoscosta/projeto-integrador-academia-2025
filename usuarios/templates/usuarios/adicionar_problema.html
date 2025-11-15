@@ -1,0 +1,25 @@
+{% extends 'paginas/index.html' %}
+{% load crispy_forms_tags %}
+
+{% block conteudo %}
+
+<div classclass="container"> <div class="row">
+        <div class="col-md-8 offset-md-2">
+            
+            <h2>Adicionar Problema Médico</h2>
+            <p>Adicione uma condição ou problema de saúde ao seu perfil.</p>
+            <hr>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

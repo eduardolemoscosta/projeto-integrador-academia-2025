@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import IMCRegistro
+from .models import ProblemaMedico 
 
 class UsuarioForm(UserCreationForm):
     email = forms.EmailField(max_length=100, widget=forms.EmailInput(attrs={'class': 'form-control form-control-user', 'placeholder': 'Email'}))
@@ -37,3 +38,13 @@ class IMCForm(forms.ModelForm):
             'altura': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Altura em metros'}),
         }
 
+class ProblemaMedicoForm(forms.ModelForm):
+    class Meta:
+        model = ProblemaMedico
+        fields = ['descricao'] 
+        widgets = {
+            'descricao': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Descreva o problema médico...'}),
+        }
+        labels = {
+            'descricao': 'Descrição do Problema',
+        }
