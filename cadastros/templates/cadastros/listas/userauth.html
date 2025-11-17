@@ -3,25 +3,22 @@
 {% load static %}
 
 {% block conteudo %}
-<p></p>
-<h3 class="text-center text-primary mb-4">
-    Lista de Usuários Registrados
-</h3>
+<div class="page-intro mb-4 text-center">
+    <h3 class="page-title mb-2">Lista de Usuários Registrados</h3>
+    <p class="page-subtitle">Pesquise e acompanhe os perfis ativos da plataforma.</p>
+</div>
 <div class="container my-5">
-    <hr>
-
-    <form action="?" method="GET" class="row g-3 align-items-center justify-content-center mb-4">
+    <form action="?" method="GET" class="row g-3 align-items-center justify-content-center mb-4 search-panel">
         <div class="col-md-6 col-sm-8">
-            <input type="text" name="nome_completo" value="{{ request.GET.nome_completo }}" class="form-control" autocomplete="off" placeholder="Usuário">
+            <input type="text" name="nome_completo" value="{{ request.GET.nome_completo }}" class="form-control search-input" autocomplete="off" placeholder="Usuário">
         </div>
         <div class="col-md-3 col-sm-4 d-flex justify-content-start">
-            <button type="submit" class="btn btn-success me-2"><i class="fas fa-search"></i> Buscar</button>
+            <button type="submit" class="btn btn-success mr-2"><i class="fas fa-search"></i> Buscar</button>
             <a href="{% url 'listar-usersauth' %}" class="btn btn-light"><i class="fas fa-times"></i> Limpar</a>
         </div>
     </form>
-    <hr>
     <div class="table-responsive">
-        <table class="table table-bordered table-hover text-center">
+        <table class="table table-bordered table-hover text-center modern-table">
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
@@ -32,7 +29,7 @@
             </thead>
             <tbody>
                 {% for user in object_list %}
-                <tr class="user-row" onclick="window.location.href='{% url 'detalhes-usuario' user.pk %}'" style="cursor: pointer;">
+                <tr class="user-row clickable-row" onclick="window.location.href='{% url 'detalhes-usuario' user.pk %}'">
                     <td>{{ user.pk }}</td>
                     <td>{{ user.usuario }}</td>
                     <td>{{ user.matricula }}</td>
@@ -97,53 +94,4 @@
     </div>
 </div>
 
-<style>
-    table {
-        border-radius: 10px;
-        border-collapse: separate;
-        border-spacing: 0 10px;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-
-    .table-dark {
-        background-color: #333;
-        color: white;
-    }
-
-    .table td, .table th {
-        padding: 15px;
-    }
-
-    .user-row:nth-child(odd) {
-        background-color: #f7f7f7;
-    }
-
-    .user-row:hover {
-        background-color: #e0e0e0;
-        cursor: pointer;
-    }
-
-    .pagination {
-        font-size: 1.1rem;
-    }
-
-    .pagination .page-item .page-link {
-        color: #4e73df;
-        border: 1px solid #4e73df;
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: #4e73df;
-        border-color: #4e73df;
-    }
-
-    .pagination .page-item.disabled .page-link {
-        color: #d1d3e2;
-        background-color: #f8f9fc;
-        border-color: #d1d3e2;
-    }
-</style>
 {% endblock %}
