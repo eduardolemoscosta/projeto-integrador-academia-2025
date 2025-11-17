@@ -3,58 +3,10 @@
 {% block title %}Home{% endblock %}
 
 {% block conteudo %}
-<style>
-    #calendar-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    #calendar {
-        width: 100%;
-        min-height: 400px;
-    }
-
-    @media (min-width: 992px) {
-        #calendar-container {
-            flex-wrap: nowrap;
-        }
-        #events-column {
-            max-width: 25%;
-        }
-        #calendar-column {
-            max-width: 75%;
-        }
-    }
-
-    .fc-header-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .fc-toolbar-chunk {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: flex-start;
-    }
-
-    @media (max-width: 576px) {
-        .fc-header-toolbar {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .fc-toolbar-chunk {
-            justify-content: flex-start;
-        }
-    }
-</style>
-
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Calendário inteligente</h3>
+    <p class="page-subtitle">Visualize seus compromissos e eventos em tempo real.</p>
+</div>
 <div class="container-fluid mt-4">
     <div class="row" id="calendar-container">
         <!-- Coluna de eventos do dia -->
@@ -84,7 +36,7 @@
 <div class="row mb-3">
     <div class="col-12 col-sm-auto">
         <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary d-flex align-items-center">
-            <i class="fas fa-plus me-2"></i> Adicionar evento
+            <i class="fas fa-plus mr-2"></i> Adicionar evento
         </a>
     </div>
 </div>

@@ -3,63 +3,52 @@
 {% load static %}
 
 {% block conteudo %}
-<style>
-    .card {
-        transition: transform 0.3s; 
-    }
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Programas de Treino</h3>
+    <p class="page-subtitle">Filtre e acompanhe os treinos ativos de cada aluno.</p>
+</div>
 
-    .card:hover {
-        transform: scale(1.05); 
-    }
-</style>
-<hr>
-
-<form action="?" method="GET"></form>
-
-    <input type="text" name="nome_programa" id="" value="{{ request.GET.nome_programa }}" class="p-1 border" autocomplete="off" placeholder="Nome ou parte dele">
-
-    <button type="submit" class="btn btn-success">Buscar</button>
-
-    <a href="{% url 'listar-training-exercicios' %}" class="btn btn-light">Limpar</a>
-
-<hr>
-<div class="container mt-5">
-    <h3 class="text-center mb-4">Programas de Treino</h3>
-
-    <div class="text-center mb-4">
+<form action="" method="GET" class="row g-3 align-items-center search-panel mb-4">
+    <div class="col-md-6">
+        <input type="text" name="nome_programa" value="{{ request.GET.nome_programa }}" class="form-control search-input" autocomplete="off" placeholder="Buscar por nome do programa">
+    </div>
+    <div class="col-md-6 d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Buscar</button>
+        <a href="{% url 'listar-training-exercicios' %}" class="btn btn-outline-primary">Limpar</a>
         {% if user.is_staff %}
-            <a href="{% url 'cadastrar-training-exercicio' %}" class="btn btn-success btn-lg shadow-sm">Cadastrar um novo Programa de Treino</a>
+            <a href="{% url 'cadastrar-training-exercicio' %}" class="btn btn-success ml-auto">+ Novo Programa</a>
         {% endif %}
     </div>
-    
+</form>
 
-    <div class="row flex-nowrap overflow-auto">
+<div class="container mt-4">
+    <div class="row flex-nowrap overflow-auto gy-4 program-grid">
         {% for training_exercicio in object_list %}
         <div class="col-md-4 mb-4">
-            <div class="card border-light shadow-sm" style="border-radius: 15px; background-color: #f8f9fa;">
+            <div class="card border-light shadow-sm program-card">
                 <div class="card-body">
-                    <h5 class="card-title text-secondary">Treino: <strong>{{ training_exercicio.nome_programa }}</strong></h5>
-                    <p><strong>Exercicio: </strong>{{ training_exercicio.exercicio.nome }}</p>
-                    <p><strong>Usuario: </strong>{{ training_exercicio.usuario.username }}</p>
-                    <p><strong>Grupo: </strong>{{ training_exercicio.grupo }}</p>
-                    <p><strong>Séries: </strong>{{ training_exercicio.series }} séries</p>
-                    <p><strong>Repetições: </strong>{{ training_exercicio.repeticoes }} reps</p>
-                    <p><strong>Carga: </strong>{{ training_exercicio.carga }} kg</p>
-                    <p><strong>Tempo de Descanso: </strong>{{ training_exercicio.tempo }} minutos</p>
+                    <p class="eyebrow text-uppercase mb-1">Treino</p>
+                    <h5 class="card-title text-secondary"><strong>{{ training_exercicio.nome_programa }}</strong></h5>
+                    <p><strong>Exercício:</strong> {{ training_exercicio.exercicio.nome }}</p>
+                    <p><strong>Usuário:</strong> {{ training_exercicio.usuario.username }}</p>
+                    <p><strong>Grupo:</strong> {{ training_exercicio.grupo }}</p>
+                    <p><strong>Séries:</strong> {{ training_exercicio.series }} séries</p>
+                    <p><strong>Repetições:</strong> {{ training_exercicio.repeticoes }} reps</p>
+                    <p><strong>Carga:</strong> {{ training_exercicio.carga }} kg</p>
+                    <p><strong>Descanso:</strong> {{ training_exercicio.tempo }} min</p>
                 </div>
-                
-    
-                <div class="text-center mt-3">
+                <div class="card-footer bg-transparent border-0 pt-0">
                     {% if user.is_staff %}
-                        <a href="{% url 'editar-training-exercicio' training_exercicio.pk %}" class="btn btn-warning btn-sm" title="Editar">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'editar-training-exercicio' training_exercicio.pk %}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar
                         </a>
-                        <a href="{% url 'excluir-training-exercicio' training_exercicio.pk %}" class="btn btn-danger btn-sm" title="Excluir">
+                        <a href="{% url 'excluir-training-exercicio' training_exercicio.pk %}" class="btn btn-danger btn-sm">
                             <i class="fas fa-trash-alt"></i> Excluir
                         </a>
+                    </div>
                     {% endif %}
                 </div>
-                
             </div>
         </div>
         {% empty %}
@@ -68,11 +57,13 @@
         </div>
         {% endfor %}
     </div>
+
     <div class="text-center mt-4">
         {% if user.is_staff %}
-            <a href="{% url 'cadastrar-exercicio' %}" class="btn btn-outline-primary btn-lg shadow-sm" style="border-width: 2px;">+ Adicionar Exercício</a>
+            <a href="{% url 'cadastrar-exercicio' %}" class="btn btn-outline-primary btn-lg shadow-sm">+ Adicionar Exercício</a>
         {% endif %}
     </div>
+
     <div class="d-flex justify-content-center mt-4">
         <nav aria-label="Paginação">
             <ul class="pagination">
@@ -100,7 +91,6 @@
             </ul>
         </nav>
     </div>
-
 </div>
 
 {% endblock %}
