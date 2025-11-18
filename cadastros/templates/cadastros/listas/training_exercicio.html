@@ -15,7 +15,7 @@
     <div class="col-md-6 d-flex flex-wrap gap-2">
         <button type="submit" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Buscar</button>
         <a href="{% url 'listar-training-exercicios' %}" class="btn btn-outline-primary">Limpar</a>
-        {% if user.is_staff %}
+        {% if user.is_authenticated %}
             <a href="{% url 'cadastrar-training-exercicio' %}" class="btn btn-success ml-auto">+ Novo Programa</a>
         {% endif %}
     </div>
@@ -38,7 +38,7 @@
                     <p><strong>Descanso:</strong> {{ training_exercicio.tempo }} min</p>
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0">
-                    {% if user.is_staff %}
+                    {% if user.is_staff or training_exercicio.usuario == user %}
                     <div class="d-flex justify-content-between">
                         <a href="{% url 'editar-training-exercicio' training_exercicio.pk %}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar

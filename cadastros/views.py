@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from braces.views import GroupRequiredMixin
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
+from django import forms
 
 # Create Views
 class CampoCreate(LoginRequiredMixin, CreateView):
@@ -55,18 +56,27 @@ class AvaliacaoCreate(GroupRequiredMixin, LoginRequiredMixin, CreateView):
         return context
 
 
-class TrainingExercicioCreate(CreateView):
+class TrainingExercicioCreate(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('login')
     model = TrainingExercicio
     form_class = TrainingExercicioForm
     template_name = 'cadastros/form.html'
-    success_url = '/listar/training-exercicios/'
+    success_url = reverse_lazy('listar-training-exercicios')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        return response
+        # Automatically set the usuario to the current logged-in user
+        form.instance.usuario = self.request.user
+        return super().form_valid(form)
 
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Remove usuario field from form for regular users
+        if 'usuario' in form.fields:
+            if not self.request.user.is_staff:
+                # Hide usuario field for regular users - it will be set automatically
+                form.fields['usuario'].widget = forms.HiddenInput()
+                form.fields['usuario'].required = False
+        return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -122,21 +132,38 @@ class AvaliacaoUpdate(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
         return context
 
 
-class TrainingExercicioUpdate(GroupRequiredMixin, LoginRequiredMixin, UpdateView):
+class TrainingExercicioUpdate(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
-    group_required = u"Administrador"
     model = TrainingExercicio
     form_class = TrainingExercicioForm
     template_name = 'cadastros/form_training_exercicio.html'
     success_url = reverse_lazy('listar-training-exercicios')
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        training_exercicio = get_object_or_404(TrainingExercicio, pk=self.kwargs['pk'])
+        # Users can only edit their own programs, staff can edit any
+        if not request.user.is_staff and training_exercicio.usuario != request.user:
             return HttpResponseForbidden("Você não tem permissão para editar este registro.")
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(TrainingExercicio, pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        # For regular users, ensure they can't change the usuario field
+        if not self.request.user.is_staff:
+            form.instance.usuario = self.request.user
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Remove usuario field from form for regular users
+        if 'usuario' in form.fields:
+            if not self.request.user.is_staff:
+                # Hide usuario field for regular users - they can only edit their own programs
+                form.fields['usuario'].widget = forms.HiddenInput()
+                form.fields['usuario'].required = False
+        return form
 
 
 
@@ -162,15 +189,16 @@ class AvaliacaoDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
     template_name = 'cadastros/form-excluir.html'
     success_url = reverse_lazy('listar-avaliacoes')
 
-class TrainingExercicioDelete(GroupRequiredMixin, LoginRequiredMixin, DeleteView):
+class TrainingExercicioDelete(LoginRequiredMixin, DeleteView):
     login_url = reverse_lazy('login')
-    group_required = u"Administrador"
     model = TrainingExercicio
     template_name = 'cadastros/form-excluir.html'
     success_url = reverse_lazy('listar-training-exercicios')
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        training_exercicio = get_object_or_404(TrainingExercicio, pk=self.kwargs['pk'])
+        # Users can only delete their own programs, staff can delete any
+        if not request.user.is_staff and training_exercicio.usuario != request.user:
             return redirect('listar-training-exercicios')
         return super().dispatch(request, *args, **kwargs)
 

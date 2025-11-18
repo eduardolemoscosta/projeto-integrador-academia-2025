@@ -1,0 +1,92 @@
+{% extends 'paginas/index.html' %}
+{% load static %}
+
+{% block conteudo %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h4 class="m-0 font-weight-bold">
+                        <i class="fas fa-id-card mr-2"></i>
+                        Criar Matrícula
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if gerada %}
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle mr-2"></i>Matrícula Gerada com Sucesso!</h5>
+                            <p class="mb-0">Uma nova matrícula foi gerada e está pronta para ser atribuída a um usuário.</p>
+                        </div>
+
+                        <div class="card border-success mb-4">
+                            <div class="card-header bg-success text-white text-center">
+                                <h5 class="mb-0"><i class="fas fa-id-card mr-2"></i>Matrícula Gerada</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h2 class="display-4 font-weight-bold text-success mb-3">{{ matricula }}</h2>
+                                <p class="text-muted">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Esta matrícula está disponível para ser usada por um novo usuário durante o cadastro.
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <strong>Formato:</strong> {{ ano }}111XXXX
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <strong>Importante:</strong> Anote ou copie esta matrícula. Ela será necessária para que o usuário possa desbloquear sua conta após o cadastro.
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <form method="POST" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Gerar Outra Matrícula
+                                </button>
+                            </form>
+                            <a href="{% url 'listar-usersauth' %}" class="btn btn-secondary btn-lg ml-2">
+                                <i class="fas fa-list mr-2"></i>
+                                Ver Usuários
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Informação:</strong> Ao clicar no botão abaixo, uma nova matrícula única será gerada no formato: 
+                            <code>ANO111XXXX</code> (exemplo: 20251110001)
+                        </div>
+
+                        <div class="card border-primary mb-4">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Gerar Nova Matrícula</h5>
+                                <p class="card-text text-muted">
+                                    A matrícula gerada poderá ser usada por um novo usuário durante o processo de cadastro e desbloqueio da conta.
+                                </p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-id-card mr-2"></i>
+                                        Gerar Matrícula
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <a href="{% url 'listar-usersauth' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i>
+                                Voltar
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

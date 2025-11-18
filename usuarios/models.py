@@ -5,7 +5,7 @@ from django.utils import timezone
 class Perfil(models.Model):
     nome_completo = models.CharField(max_length=50, null=True)
     email = models.CharField(max_length=100, null=True)
-    matricula = models.CharField(max_length=14, null=True, verbose_name="MATRICULA")
+    matricula = models.CharField(max_length=14, null=True, unique=True, verbose_name="MATRICULA")
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
