@@ -31,11 +31,11 @@
                 </a>
             </li>
 
-            <li class="nav-item {% if request.path == '/registrar/' %}active{% endif %}">
+            <li class="nav-item {% if request.path == '/criar-matricula/' %}active{% endif %}">
                 {% if user.is_staff %}
-                    <a class="nav-link" href="{% url 'registrar' %}">
-                        <i class="fas fa-fw fa-plus"></i>
-                        <span>Cadastrar Usuario</span>
+                    <a class="nav-link" href="{% url 'criar-matricula' %}">
+                        <i class="fas fa-fw fa-id-card"></i>
+                        <span>Criar Matrícula</span>
                     </a>
                 {% endif %}
             </li>

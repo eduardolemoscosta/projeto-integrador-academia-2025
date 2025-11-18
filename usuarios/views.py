@@ -18,6 +18,8 @@ from .forms import IMCForm
 from .models import ProblemaMedico, Perfil 
 
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from django.core.exceptions import PermissionDenied
 
 
 class UsuarioCreate(CreateView):
@@ -87,20 +89,54 @@ class PerfilList(ListView):
 
 
 
-class PerfilUpdate(UpdateView):
+class PerfilUpdate(LoginRequiredMixin, UpdateView):
     template_name = "cadastros/form_perfil.html"
     model = Perfil
-    fields = ['nome_completo', 'email', 'matricula']
+    fields = ['email']  # Only email can be edited by staff
     success_url = reverse_lazy("inicio")
 
     def get_object(self, queryset=None):
         perfil, _ = Perfil.objects.get_or_create(usuario=self.request.user)
         return perfil
 
+    def form_valid(self, form):
+        """Only allow staff to save changes"""
+        if not self.request.user.is_staff:
+            raise PermissionDenied("Apenas administradores podem editar informações do perfil.")
+        return super().form_valid(form)
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['titulo'] = "Meus dados"
         context['botao'] = "Atualizar"
+        context['perfil'] = self.get_object()
+        return context
+
+
+class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
+    """View for staff to edit user matrícula and nome_completo"""
+    login_url = reverse_lazy('login')
+    template_name = "cadastros/form_perfil_staff.html"
+    model = Perfil
+    fields = ['nome_completo', 'matricula']
+    success_url = reverse_lazy("listar-usersauth")
+
+    def dispatch(self, request, *args, **kwargs):
+        """Only allow staff to access this view"""
+        if not request.user.is_staff:
+            raise PermissionDenied("Apenas administradores podem editar matrícula e nome.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        perfil = get_object_or_404(Perfil, pk=self.kwargs['pk'])
+        return perfil
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        perfil = self.get_object()
+        context['titulo'] = f"Editar Perfil de {perfil.usuario.username}"
+        context['botao'] = "Salvar Alterações"
+        context['usuario'] = perfil.usuario
         return context
     
 
@@ -241,4 +277,68 @@ def adicionar_problema_medico(request):
 
     
     return render(request, 'usuarios/adicionar_problema.html', context)
+
+
+def mostrar_matricula(request, user_id):
+    """View to display the generated matricula after user registration"""
+    user = get_object_or_404(User, id=user_id)
+    perfil = get_object_or_404(Perfil, usuario=user)
+    
+    context = {
+        'user': user,
+        'perfil': perfil,
+        'matricula': perfil.matricula,
+        'nome_completo': perfil.nome_completo or user.username
+    }
+    
+    return render(request, 'usuarios/mostrar_matricula.html', context)
+
+
+def gerar_matricula(request):
+    """View for staff to generate a matrícula only (no user creation)"""
+    if not request.user.is_staff:
+        raise PermissionDenied("Apenas administradores podem gerar matrículas.")
+    
+    if request.method == 'POST':
+        # Generate matricula: year + "111" + sequential number (4 digits with leading zeros)
+        current_year = datetime.now().year
+        year_prefix = f"{current_year}111"
+        
+        # Find the highest sequential number for this year
+        existing_matriculas = Perfil.objects.filter(
+            matricula__startswith=year_prefix
+        ).exclude(matricula__isnull=True).values_list('matricula', flat=True)
+        
+        if existing_matriculas:
+            # Extract the sequential numbers and find the maximum
+            sequential_numbers = []
+            for mat in existing_matriculas:
+                try:
+                    # Extract the last 4 digits (sequential number)
+                    seq_num = int(mat[-4:])
+                    sequential_numbers.append(seq_num)
+                except (ValueError, IndexError):
+                    continue
+            
+            if sequential_numbers:
+                next_sequential = max(sequential_numbers) + 1
+            else:
+                next_sequential = 1
+        else:
+            # First matrícula for this year
+            next_sequential = 1
+        
+        # Format: year + "111" + sequential number (4 digits)
+        matricula = f"{year_prefix}{next_sequential:04d}"
+        
+        context = {
+            'matricula': matricula,
+            'ano': current_year,
+            'gerada': True
+        }
+        
+        return render(request, 'usuarios/criar_matricula.html', context)
+    
+    # GET request - show form to generate matrícula
+    return render(request, 'usuarios/criar_matricula.html', {'gerada': False})
 

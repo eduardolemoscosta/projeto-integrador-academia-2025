@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Matrícula Gerada">
+    <meta name="author" content="">
+
+    <title>Fitcrol - Matrícula Gerada</title>
+
+    <!-- FontAwesome para ícones -->
+    <link href="{% static 'fontawesome-free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap e estilos personalizados -->
+    <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary auth-page">
+
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="row w-100 justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10 card o-hidden shadow-lg border-0 auth-card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h1 class="text-success">Cadastro Realizado com Sucesso!</h1>
+                        <h4 class="text-muted">Sua matrícula foi gerada</h4>
+                    </div>
+
+                    <div class="alert alert-info text-center" role="alert">
+                        <h5 class="mb-2">Informações do Usuário</h5>
+                        <p class="mb-1"><strong>Nome:</strong> {{ nome_completo }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+
+                    <div class="card border-success mb-4">
+                        <div class="card-header bg-success text-white text-center">
+                            <h5 class="mb-0"><i class="fas fa-id-card mr-2"></i>Matrícula</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <h2 class="display-4 font-weight-bold text-success mb-3">{{ matricula }}</h2>
+                            <p class="text-muted">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Guarde esta matrícula! Ela será necessária para verificação do usuário.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <strong>Importante:</strong> Anote ou copie sua matrícula antes de continuar. 
+                        Você precisará dela para acessar o sistema.
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Ir para Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Bootstrap e customizados -->
+    <script src="{% static 'jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+</body>
+</html>
+

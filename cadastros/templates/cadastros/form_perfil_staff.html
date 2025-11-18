@@ -1,0 +1,41 @@
+{% extends 'paginas/index.html' %}
+{% load crispy_forms_tags %}
+
+{% block conteudo %}
+<div class="container mt-5">
+  <div class="card shadow-lg border-0 rounded-lg">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">{{ titulo }}</h4>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle mr-2"></i>
+        <strong>Edição Administrativa:</strong> Você está editando o perfil de <strong>{{ usuario.username }}</strong> ({{ usuario.email }}).
+      </div>
+      
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            {{ form.nome_completo|as_crispy_field }}
+          </div>
+          <div class="form-group col-md-6">
+            {{ form.matricula|as_crispy_field }}
+          </div>
+        </div>
+        
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle mr-2"></i>
+          <strong>Atenção:</strong> Alterações na matrícula e nome completo são permanentes e não podem ser desfeitas pelo usuário.
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+          <button type="submit" class="btn btn-success">{{ botao }}</button>
+          <a href="{% url 'listar-usersauth' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
