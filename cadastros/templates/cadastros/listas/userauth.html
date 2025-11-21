@@ -25,6 +25,7 @@
                     <th>Nome</th>
                     <th>Matrícula</th>
                     <th>Email Acadêmico</th>
+		    
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +35,12 @@
                     <td>{{ user.usuario }}</td>
                     <td>{{ user.matricula }}</td>
                     <td>{{ user.email }}</td>
+		    <td>
+        		<a href="{% url 'excluir_perfil' user.pk %}" onclick="return confirm('Tem certeza?');" style="color: red;">
+    Excluir
+</a>
+
+		    </td>
                 </tr>
                 {% empty %}
                 <tr>

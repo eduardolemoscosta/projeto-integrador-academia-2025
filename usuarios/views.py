@@ -342,3 +342,7 @@ def gerar_matricula(request):
     # GET request - show form to generate matrícula
     return render(request, 'usuarios/criar_matricula.html', {'gerada': False})
 
+def excluir_perfil(request, id):
+    perfil = get_object_or_404(Perfil, id=id)
+    perfil.delete()
+    return redirect('listar-usersauth')

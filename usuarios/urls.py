@@ -26,6 +26,7 @@ urlpatterns = [
     path('progresso-imc/', views.progresso_imc, name='progresso_imc'),
     path('apagar-imc/<int:imc_id>/', views.apagar_imc, name='apagar_imc'),
     path('adicionar-problema/', views.adicionar_problema_medico, name='adicionar_problema'),
+    path('excluir/<int:id>/', views.excluir_perfil, name='excluir_perfil'),
 
 ]
 
