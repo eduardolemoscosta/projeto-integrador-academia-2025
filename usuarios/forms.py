@@ -2,12 +2,20 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import IMCRegistro
-from .models import ProblemaMedico 
+from .models import IMCRegistro, ProblemaMedico, MatriculaDisponivel, Perfil
 
 class UsuarioForm(UserCreationForm):
     email = forms.EmailField(max_length=100, widget=forms.EmailInput(attrs={'class': 'form-control form-control-user', 'placeholder': 'Email'}))
     nome_completo = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control form-control-user', 'placeholder': 'Nome completo'}))
+    matricula = forms.CharField(
+        max_length=14, 
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-user', 
+            'placeholder': 'Matrícula (opcional)'
+        }),
+        help_text='Digite sua matrícula se você recebeu uma. Caso contrário, deixe em branco.'
+    )
 
     class Meta:
         model = User
@@ -28,6 +36,27 @@ class UsuarioForm(UserCreationForm):
         if User.objects.filter(email=e).exists():
             raise ValidationError(f"O email {e} já está em uso.")
         return e
+    
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            # Remove any whitespace
+            matricula = matricula.strip()
+            
+            # Check if matricula is already assigned to another user
+            if Perfil.objects.filter(matricula=matricula).exclude(usuario=self.instance if self.instance.pk else None).exists():
+                raise ValidationError("Esta matrícula já está em uso por outro usuário.")
+            
+            # Check if matricula exists in available matriculas
+            matricula_disponivel = MatriculaDisponivel.objects.filter(
+                matricula=matricula,
+                utilizada=False
+            ).first()
+            
+            if not matricula_disponivel:
+                raise ValidationError("Esta matrícula não está disponível ou já foi utilizada. Verifique se digitou corretamente.")
+        
+        return matricula
 
 class IMCForm(forms.ModelForm):
     class Meta:
@@ -48,3 +77,49 @@ class ProblemaMedicoForm(forms.ModelForm):
         labels = {
             'descricao': 'Descrição do Problema',
         }
+
+
+class StaffPerfilForm(forms.ModelForm):
+    """Form for staff to edit user profile with matricula validation"""
+    class Meta:
+        model = Perfil
+        fields = ['nome_completo', 'matricula']
+        widgets = {
+            'nome_completo': forms.TextInput(attrs={'class': 'form-control'}),
+            'matricula': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If matricula is already set, make it read-only
+        if self.instance and self.instance.pk and self.instance.matricula:
+            self.fields['matricula'].widget.attrs['readonly'] = True
+            self.fields['matricula'].widget.attrs['class'] = 'form-control bg-light'
+            self.fields['matricula'].help_text = 'Esta matrícula está bloqueada e não pode ser alterada.'
+    
+    def clean_matricula(self):
+        matricula = self.cleaned_data.get('matricula')
+        if matricula:
+            # Remove any whitespace
+            matricula = matricula.strip()
+            
+            # If matricula is already set, prevent changing it
+            if self.instance and self.instance.pk and self.instance.matricula:
+                if self.instance.matricula != matricula:
+                    raise ValidationError("Esta matrícula está bloqueada e não pode ser alterada.")
+                return matricula
+            
+            # Check if matricula is already assigned to another user
+            if Perfil.objects.filter(matricula=matricula).exclude(pk=self.instance.pk if self.instance.pk else None).exists():
+                raise ValidationError("Esta matrícula já está em uso por outro usuário.")
+            
+            # Check if matricula exists in available matriculas (only if it's a new assignment)
+            matricula_disponivel = MatriculaDisponivel.objects.filter(
+                matricula=matricula,
+                utilizada=False
+            ).first()
+            
+            if not matricula_disponivel:
+                raise ValidationError("Esta matrícula não está disponível ou já foi utilizada. Verifique se digitou corretamente.")
+        
+        return matricula

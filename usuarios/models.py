@@ -36,3 +36,18 @@ class ProblemaMedico(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} - {self.descricao[:30]}"
+
+
+class MatriculaDisponivel(models.Model):
+    """Model to store generated but unused matriculas"""
+    matricula = models.CharField(max_length=14, unique=True, verbose_name="MATRICULA")
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    utilizada = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = "Matrícula Disponível"
+        verbose_name_plural = "Matrículas Disponíveis"
+        ordering = ['-data_criacao']
+    
+    def __str__(self):
+        return f"{self.matricula} - {'Utilizada' if self.utilizada else 'Disponível'}"

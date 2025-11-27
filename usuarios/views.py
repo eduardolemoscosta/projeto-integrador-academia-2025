@@ -5,21 +5,14 @@ from django.contrib.auth.models import User, Group
 from .forms import UsuarioForm
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
-from .models import Perfil
+from .models import Perfil, IMCRegistro, ProblemaMedico, MatriculaDisponivel
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from .models import ProblemaMedico
-from .forms import ProblemaMedicoForm 
-from .models import Perfil, IMCRegistro, ProblemaMedico 
-
-from .forms import IMCForm
-from .models import ProblemaMedico, Perfil 
-
+from .forms import ProblemaMedicoForm, IMCForm, StaffPerfilForm
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from django.core.exceptions import PermissionDenied
 
 
 class UsuarioCreate(CreateView):
@@ -31,9 +24,10 @@ class UsuarioCreate(CreateView):
         
         grupo, _ = Group.objects.get_or_create(name="Docente") #ou Discentes
 
-        # Get nome_completo and email from form before saving
+        # Get nome_completo, email, and matricula from form before saving
         nome_completo = form.cleaned_data.get('nome_completo')
         email = form.cleaned_data.get('email')
+        matricula = form.cleaned_data.get('matricula')
         
         url = super().form_valid(form)
 
@@ -44,12 +38,19 @@ class UsuarioCreate(CreateView):
 
         self.object.groups.add(grupo)
         
-        # Create or get Perfil and set nome_completo and email
+        # Create or get Perfil and set nome_completo, email, and matricula
         perfil, _ = Perfil.objects.get_or_create(usuario=self.object)
         if nome_completo:
             perfil.nome_completo = nome_completo
         if email:
             perfil.email = email
+        if matricula:
+            # Mark the matricula as used
+            MatriculaDisponivel.objects.filter(
+                matricula=matricula,
+                utilizada=False
+            ).update(utilizada=True)
+            perfil.matricula = matricula
         perfil.save()
 
         return url
@@ -118,7 +119,7 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
     template_name = "cadastros/form_perfil_staff.html"
     model = Perfil
-    fields = ['nome_completo', 'matricula']
+    form_class = StaffPerfilForm
     success_url = reverse_lazy("listar-usersauth")
 
     def dispatch(self, request, *args, **kwargs):
@@ -130,6 +131,21 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         perfil = get_object_or_404(Perfil, pk=self.kwargs['pk'])
         return perfil
+    
+    def form_valid(self, form):
+        """Mark matricula as used if it's being assigned for the first time"""
+        perfil = form.save(commit=False)
+        matricula = form.cleaned_data.get('matricula')
+        
+        # If matricula is being set for the first time, mark it as used
+        if matricula and (not self.object.matricula or self.object.matricula != matricula):
+            MatriculaDisponivel.objects.filter(
+                matricula=matricula,
+                utilizada=False
+            ).update(utilizada=True)
+        
+        perfil.save()
+        return super().form_valid(form)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -137,6 +153,7 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
         context['titulo'] = f"Editar Perfil de {perfil.usuario.username}"
         context['botao'] = "Salvar Alterações"
         context['usuario'] = perfil.usuario
+        context['matricula_locked'] = perfil.matricula is not None and perfil.matricula != ''
         return context
     
 
@@ -299,20 +316,30 @@ def gerar_matricula(request):
     if not request.user.is_staff:
         raise PermissionDenied("Apenas administradores podem gerar matrículas.")
     
+    current_year = datetime.now().year
+    year_prefix = f"{current_year}111"
+    
+    # Get all available (unused) matriculas
+    matriculas_disponiveis = MatriculaDisponivel.objects.filter(utilizada=False).order_by('-data_criacao')
+    
     if request.method == 'POST':
-        # Generate matricula: year + "111" + sequential number (4 digits with leading zeros)
-        current_year = datetime.now().year
-        year_prefix = f"{current_year}111"
-        
-        # Find the highest sequential number for this year
-        existing_matriculas = Perfil.objects.filter(
+        # Generate new matricula: year + "111" + sequential number (4 digits with leading zeros)
+        # Get all existing matriculas (both used and available)
+        existing_matriculas_perfil = Perfil.objects.filter(
             matricula__startswith=year_prefix
         ).exclude(matricula__isnull=True).values_list('matricula', flat=True)
         
-        if existing_matriculas:
+        existing_matriculas_disponiveis = MatriculaDisponivel.objects.filter(
+            matricula__startswith=year_prefix
+        ).values_list('matricula', flat=True)
+        
+        # Combine all existing matriculas
+        all_existing = list(existing_matriculas_perfil) + list(existing_matriculas_disponiveis)
+        
+        if all_existing:
             # Extract the sequential numbers and find the maximum
             sequential_numbers = []
-            for mat in existing_matriculas:
+            for mat in all_existing:
                 try:
                     # Extract the last 4 digits (sequential number)
                     seq_num = int(mat[-4:])
@@ -331,16 +358,27 @@ def gerar_matricula(request):
         # Format: year + "111" + sequential number (4 digits)
         matricula = f"{year_prefix}{next_sequential:04d}"
         
+        # Save the new matricula as available
+        MatriculaDisponivel.objects.create(matricula=matricula)
+        
+        # Refresh the list of available matriculas
+        matriculas_disponiveis = MatriculaDisponivel.objects.filter(utilizada=False).order_by('-data_criacao')
+        
         context = {
             'matricula': matricula,
             'ano': current_year,
-            'gerada': True
+            'gerada': True,
+            'matriculas_disponiveis': matriculas_disponiveis
         }
         
         return render(request, 'usuarios/criar_matricula.html', context)
     
     # GET request - show form to generate matrícula
-    return render(request, 'usuarios/criar_matricula.html', {'gerada': False})
+    context = {
+        'gerada': False,
+        'matriculas_disponiveis': matriculas_disponiveis
+    }
+    return render(request, 'usuarios/criar_matricula.html', context)
 
 def excluir_perfil(request, id):
     perfil = get_object_or_404(Perfil, id=id)

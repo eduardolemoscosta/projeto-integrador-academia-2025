@@ -3,6 +3,26 @@
 from django.db import migrations, models
 
 
+def remove_duplicate_matriculas(apps, schema_editor):
+    """Remove duplicate matriculas by keeping only the first one for each matricula"""
+    Perfil = apps.get_model('usuarios', 'Perfil')
+    
+    # Find all duplicate matriculas
+    from django.db.models import Count
+    duplicates = Perfil.objects.values('matricula').annotate(
+        count=Count('matricula')
+    ).filter(count__gt=1, matricula__isnull=False)
+    
+    # For each duplicate matricula, keep the first one and clear the rest
+    for dup in duplicates:
+        matricula = dup['matricula']
+        profiles = Perfil.objects.filter(matricula=matricula).order_by('id')
+        # Keep the first one, clear the rest
+        for profile in profiles[1:]:
+            profile.matricula = None
+            profile.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,6 +30,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(remove_duplicate_matriculas, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='perfil',
             name='matricula',
