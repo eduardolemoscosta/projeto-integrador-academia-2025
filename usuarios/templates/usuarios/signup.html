@@ -67,6 +67,14 @@
                         </div>
                         
                         <div class="form-group mb-4 auth-form-group">
+                            <label for="{{ form.matricula.id_for_label }}" class="form-label">Matrícula <small class="text-muted">(opcional)</small></label>
+                            {{ form.matricula }}
+                            {% if form.matricula.help_text %}
+                                <small class="form-text text-muted">{{ form.matricula.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-4 auth-form-group">
                             <label for="{{ form.password1.id_for_label }}" class="form-label">Senha</label>
                             {{ form.password1 }}
                             {% if form.password1.help_text %}
