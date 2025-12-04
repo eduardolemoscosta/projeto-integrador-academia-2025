@@ -1,0 +1,26 @@
+[
+  {
+    "model": "cadastros.exercicio",
+    "pk": 1,
+    "fields": {
+      "nome": "Musculação",
+      "tipo": "Força"
+    }
+  },
+  {
+    "model": "cadastros.exercicio",
+    "pk": 2,
+    "fields": {
+      "nome": "Natação",
+      "tipo": "Cardio"
+    }
+  },
+  {
+    "model": "cadastros.exercicio",
+    "pk": 3,
+    "fields": {
+      "nome": "Yoga",
+      "tipo": "Flexibilidade"
+    }
+  }
+]
