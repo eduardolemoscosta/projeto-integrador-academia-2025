@@ -153,11 +153,10 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-
-
 
                     <ul class="navbar-nav ml-auto">
 
@@ -190,17 +189,15 @@
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         {% if user.is_authenticated %}
-                        <li class="nav-item d-flex align-items-center">
-                            <a class="nav-link text-danger font-weight-bold" href="#" data-toggle="modal"
-                                data-target="#logoutModal">
-                                <span class="mr-2 d-none d-lg-inline">Sair</span>
-                                <i class="fas fa-sign-out-alt"></i>
-                            </a>
+                        <li class="nav-item d-flex align-items-center"> <button type="button"
+                                class="btn btn-danger btn-sm rounded-pill ml-3 px-4 font-weight-bold shadow-sm d-flex align-items-center justify-content-center"
+                                data-toggle="modal" data-target="#logoutModal">
+                                Sair
+                            </button>
                         </li>
                         {% endif %}
 
                     </ul>
-
 
                 </nav>
 
