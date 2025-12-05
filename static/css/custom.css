@@ -301,7 +301,6 @@ body.app-page {
     transform: translateX(4px);
 }
 
-/* Calendar layout */
 #calendar-container {
     display: flex;
     flex-wrap: wrap;
@@ -339,7 +338,6 @@ body.app-page {
     }
 }
 
-/* Login and Signup page styles */
 .auth-page {
     background: linear-gradient(to bottom, #00c6ff 0%, #0072ff 100%);
     font-family: 'Poppins', sans-serif;
@@ -446,50 +444,137 @@ body.app-page {
     outline: none;
 }
 
-/* --- Estilo da Sidebar Recolhida (Modo Ícones) --- */
-
-/* Define a largura da barra quando recolhida */
 .sidebar.toggled {
-    width: 90px !important; /* Largura fina */
-    transition: all 0.3s ease; /* Animação suave */
+    width: 90px !important;
+    transition: all 0.3s ease;
 }
 
-/* Centraliza os itens dentro da barra */
 .sidebar.toggled .nav-item .nav-link {
     text-align: center;
     padding: 1rem 0.5rem;
-    width: 90px; /* Garante que o link ocupe a largura toda */
+    width: 90px;
 }
 
-/* Aumenta o ícone e tira a margem direita dele */
 .sidebar.toggled .nav-item .nav-link i {
     margin-right: 0 !important;
-    font-size: 1.3rem; /* Tamanho bom para o ícone */
-    display: block; /* Pula linha para centralizar melhor */
-    margin-bottom: 5px; /* Espacinho extra se quiser */
+    font-size: 1.3rem;
+    display: block;
+    margin-bottom: 5px;
 }
 
-/* ESCONDE o texto (o span) quando recolhido */
 .sidebar.toggled .nav-item .nav-link span {
     display: none !important;
 }
 
-/* Esconde o título "Fitcrol" quando recolhido */
 .sidebar.toggled .sidebar-brand-text {
     display: none;
 }
 
-/* Opcional: Ajusta a logo/brand para ficar centralizada */
 .sidebar.toggled .sidebar-brand {
     padding: 0;
     justify-content: center;
 }
 
-/* FORÇA o sumiço do texto quando a barra está recolhida */
 body.sidebar-toggled .sidebar .nav-item .nav-link span,
 .sidebar.toggled .nav-item .nav-link span {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     width: 0 !important;
+}
+
+.sidebar, .main-sidebar, .sidenav, aside {
+    background-color: #0066FF !important;
+    background-image: none !important;
+    background: #0066FF !important;
+}
+
+.nav-item.active, .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.sidebar .nav-item.active .nav-link,
+.sidebar .nav-link.active {
+    border-left: none !important;
+    border-radius: 0 !important;
+}
+
+.sidebar .nav-item.active > .nav-link, 
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 15px !important;
+    margin: 5px 15px !important;
+    width: auto !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link:hover {
+    border-radius: 15px !important;
+    margin: 0 15px !important;
+}
+
+.sidebar .nav-item.active,
+.sidebar .nav-item:hover,
+.sidebar li.active {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.sidebar .nav-item.active::before,
+.sidebar .nav-link.active::before {
+    display: none !important;
+    content: none !important;
+}
+
+.sidebar .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start;
+    height: 45px !important;
+    padding: 0 15px !important;
+}
+
+.sidebar.toggled .nav-link, 
+.sidebar.collapsed .nav-link {
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.sidebar .nav-link i, 
+.sidebar .nav-link svg {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 30px;
+    margin-right: 5px;
+}
+
+.sidebar.toggled .nav-item .nav-link,
+.sidebar.collapsed .nav-item .nav-link { 
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0 !important;
+    width: auto !important;
+    margin: 5px 10px !important;
+    height: 40px !important;
+}
+
+.sidebar.toggled .nav-item .nav-link i,
+.sidebar.collapsed .nav-item .nav-link i,
+.sidebar.toggled .nav-item .nav-link svg {
+    margin-right: 0 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+.sidebar.toggled .nav-item .nav-link span,
+.sidebar.collapsed .nav-item .nav-link span {
+    display: none !important;
+}
+
+.sidebar:not(.toggled) .nav-item .nav-link {
+    justify-content: flex-start !important;
+    padding-left: 1rem !important;
 }
