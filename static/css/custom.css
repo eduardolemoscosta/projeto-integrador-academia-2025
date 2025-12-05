@@ -446,3 +446,50 @@ body.app-page {
     outline: none;
 }
 
+/* --- Estilo da Sidebar Recolhida (Modo Ícones) --- */
+
+/* Define a largura da barra quando recolhida */
+.sidebar.toggled {
+    width: 90px !important; /* Largura fina */
+    transition: all 0.3s ease; /* Animação suave */
+}
+
+/* Centraliza os itens dentro da barra */
+.sidebar.toggled .nav-item .nav-link {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    width: 90px; /* Garante que o link ocupe a largura toda */
+}
+
+/* Aumenta o ícone e tira a margem direita dele */
+.sidebar.toggled .nav-item .nav-link i {
+    margin-right: 0 !important;
+    font-size: 1.3rem; /* Tamanho bom para o ícone */
+    display: block; /* Pula linha para centralizar melhor */
+    margin-bottom: 5px; /* Espacinho extra se quiser */
+}
+
+/* ESCONDE o texto (o span) quando recolhido */
+.sidebar.toggled .nav-item .nav-link span {
+    display: none !important;
+}
+
+/* Esconde o título "Fitcrol" quando recolhido */
+.sidebar.toggled .sidebar-brand-text {
+    display: none;
+}
+
+/* Opcional: Ajusta a logo/brand para ficar centralizada */
+.sidebar.toggled .sidebar-brand {
+    padding: 0;
+    justify-content: center;
+}
+
+/* FORÇA o sumiço do texto quando a barra está recolhida */
+body.sidebar-toggled .sidebar .nav-item .nav-link span,
+.sidebar.toggled .nav-item .nav-link span {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+}

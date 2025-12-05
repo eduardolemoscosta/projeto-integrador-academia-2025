@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,15 +11,20 @@
     <meta name="author" content="">
     <title>Fitcrol</title>
     <link href={% static "fontawesome-free/css/all.min.css" %} rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
     <link href={% static "css/sb-admin-2.min.css" %} rel="stylesheet">
     <link href={% static "css/custom.css" %} rel="stylesheet">
 </head>
+
 <body id="page-top" class="{% block body_class %}home-page app-page{% endblock %}">
     <div id="wrapper">
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'inicio' %}">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-dumbbell rotate-n-15"></i>
+                </div>
                 <div class="sidebar-brand-text mx-3">Fitcrol<sup>1.0</sup></div>
             </a>
 
@@ -33,19 +39,19 @@
 
             <li class="nav-item {% if request.path == '/criar-matricula/' %}active{% endif %}">
                 {% if user.is_staff %}
-                    <a class="nav-link" href="{% url 'criar-matricula' %}">
-                        <i class="fas fa-fw fa-id-card"></i>
-                        <span>Criar Matrícula</span>
-                    </a>
+                <a class="nav-link" href="{% url 'criar-matricula' %}">
+                    <i class="fas fa-fw fa-id-card"></i>
+                    <span>Criar Matrícula</span>
+                </a>
                 {% endif %}
             </li>
-            
+
             <li class="nav-item {% if request.path == '/listar-usersauth/' %}active{% endif %}">
                 {% if user.is_staff %}
-                    <a class="nav-link" href="{% url 'listar-usersauth' %}">
-                        <i class="fas fa-fw fa-user"></i>
-                        <span>Usuarios</span>
-                    </a>
+                <a class="nav-link" href="{% url 'listar-usersauth' %}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Usuarios</span>
+                </a>
                 {% endif %}
             </li>
 
@@ -55,7 +61,8 @@
                     <span>Programas de Treino</span>
                 </a>
             </li>
-            <li class="nav-item {% if request.path == '/progresso_imc/' or request.path == '/progresso-imc/' %}active{% endif %}">
+            <li
+                class="nav-item {% if request.path == '/progresso_imc/' or request.path == '/progresso-imc/' %}active{% endif %}">
                 <a class="nav-link" href="{% url 'progresso_imc' %}">
                     <i class="fas fa-fw fa-balance-scale"></i>
                     <span>Meu IMC</span>
@@ -82,28 +89,34 @@
                 Interface
             </div>
 
-            <li class="nav-item {% if request.path == '/avaliacoes/' or request.path == '/listar-avaliacoes/' %}active{% endif %}">
+            <li
+                class="nav-item {% if request.path == '/avaliacoes/' or request.path == '/listar-avaliacoes/' %}active{% endif %}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fas fa-fw fa-heartbeat"></i>
                     <span>Avaliações</span>
                 </a>
-                <div id="collapseTwo" class="collapse {% if request.path == '/cadastrar-avaliacao/' or request.path == '/listar-avaliacoes/' %}show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseTwo"
+                    class="collapse {% if request.path == '/cadastrar-avaliacao/' or request.path == '/listar-avaliacoes/' %}show{% endif %}"
+                    aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         {% if user.is_staff %}
-                            <a class="collapse-item {% if request.path == '/cadastrar-avaliacao/' %}active{% endif %}" href="{% url 'cadastrar-avaliacao' %}">Cadastrar</a>
+                        <a class="collapse-item {% if request.path == '/cadastrar-avaliacao/' %}active{% endif %}"
+                            href="{% url 'cadastrar-avaliacao' %}">Cadastrar</a>
                         {% endif %}
-                        <a class="collapse-item {% if request.path == '/listar-avaliacoes/' %}active{% endif %}" href="{% url 'listar-avaliacoes' %}">
+                        <a class="collapse-item {% if request.path == '/listar-avaliacoes/' %}active{% endif %}"
+                            href="{% url 'listar-avaliacoes' %}">
                             {% if user.is_staff %}
-                                Todas as Avaliações
+                            Todas as Avaliações
                             {% elif user.is_authenticated %}
-                                Minha Avaliação
+                            Minha Avaliação
                             {% else %}
-                                Todas as Avaliações
+                            Todas as Avaliações
                             {% endif %}
                         </a>
                         {% if user.is_authenticated %}
-                        <a class="collapse-item {% if request.path == '/adicionar-problema/' %}active{% endif %}" href="{% url 'adicionar_problema' %}">
+                        <a class="collapse-item {% if request.path == '/adicionar-problema/' %}active{% endif %}"
+                            href="{% url 'adicionar_problema' %}">
                             Adicionar Problema
                         </a>
                         {% endif %}
@@ -117,11 +130,13 @@
                     <i class="fas fa-fw fa-wrench"></i>
                     <span>Configurações</span>
                 </a>
-                <div id="collapseUtilities" class="collapse {% if request.path == '/atualizar-dados/' %}show{% endif %}" aria-labelledby="headingUtilities"
-                    data-parent="#accordionSidebar">
+                <div id="collapseUtilities" class="collapse {% if request.path == '/atualizar-dados/' %}show{% endif %}"
+                    aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item {% if request.path == '/atualizar-dados/' %}active{% endif %}" href="{% url 'atualizar-dados' %}">Meu Perfil</a>
-                        <a class="collapse-item" href="https://github.com/eduardolemoscosta/projeto-integrador-academia-2025.git">
+                        <a class="collapse-item {% if request.path == '/atualizar-dados/' %}active{% endif %}"
+                            href="{% url 'atualizar-dados' %}">Meu Perfil</a>
+                        <a class="collapse-item"
+                            href="https://github.com/eduardolemoscosta/projeto-integrador-academia-2025.git">
                             <i class="fab fa-github mr-2"></i> GitHub
                         </a>
                     </div>
@@ -142,37 +157,23 @@
                         <i class="fa fa-bars"></i>
                     </button>
 
+
+
                     <ul class="navbar-nav ml-auto">
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
 
                         <li class="nav-item dropdown no-arrow">
-                            {% if request.user.is_authenticated %}
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="fas fa-user-circle fa-lg fa-fw mr-2 text-dark"></span>
-                                <span class="font-weight-bold text-dark">{{ request.user }}</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    {% if user.is_authenticated %}
+                                    {{ user.username }}
+                                    {% else %}
+                                    Visitante
+                                    {% endif %}
+                                </span>
+                                <i class="fas fa-user-circle fa-2x text-gray-400"></i>
                             </a>
-                            {% endif %}
+
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="{% url 'atualizar-dados' %}">
@@ -183,17 +184,28 @@
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Configurações
                                 </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Sair
-                                </a>
                             </div>
                         </li>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        {% if user.is_authenticated %}
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link text-danger font-weight-bold" href="#" data-toggle="modal"
+                                data-target="#logoutModal">
+                                <span class="mr-2 d-none d-lg-inline">Sair</span>
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
                     </ul>
+
+
                 </nav>
 
-                <div class="app-shell container-fluid py-5 {% block page_container_class %}home-dashboard{% endblock %}">
+                <div
+                    class="app-shell container-fluid py-5 {% block page_container_class %}home-dashboard{% endblock %}">
                     {% block conteudo %}
                     <div class="dashboard-hero shadow-lg rounded-lg mb-5">
                         <div class="row align-items-center">
@@ -201,10 +213,12 @@
                                 <p class="eyebrow text-uppercase mb-2">Sua rotina saudável</p>
                                 <h1 class="display-4 font-weight-bold mb-3">Bem-vindo ao Fitcrol</h1>
                                 <p class="hero-lead mb-4">
-                                    Organize treinos, acompanhe avaliações e mantenha foco na sua evolução com um painel moderno e intuitivo.
+                                    Organize treinos, acompanhe avaliações e mantenha foco na sua evolução com um painel
+                                    moderno e intuitivo.
                                 </p>
                                 <div class="hero-cta d-flex flex-wrap gap-3">
-                                    <a href="{% url 'listar-training-exercicios' %}" class="btn btn-light btn-lg mr-3 mb-3">
+                                    <a href="{% url 'listar-training-exercicios' %}"
+                                        class="btn btn-light btn-lg mr-3 mb-3">
                                         Ver treinos
                                     </a>
                                     <a href="{% url 'listar-avaliacoes' %}" class="btn btn-outline-light btn-lg mb-3">
@@ -215,13 +229,16 @@
                             <div class="col-lg-5 mt-4 mt-lg-0">
                                 <div class="glass-card text-white">
                                     {% if user.perfil.nome_completo %}
-                                        <p class="mb-1 text-uppercase small text-white-50">Perfil completo</p>
-                                        <h3 class="font-weight-bold mb-2">Olá, {{ user.perfil.nome_completo }}!</h3>
-                                        <p class="mb-0">Explore as funcionalidades disponíveis no menu lateral e mantenha seus dados atualizados.</p>
+                                    <p class="mb-1 text-uppercase small text-white-50">Perfil completo</p>
+                                    <h3 class="font-weight-bold mb-2">Olá, {{ user.perfil.nome_completo }}!</h3>
+                                    <p class="mb-0">Explore as funcionalidades disponíveis no menu lateral e mantenha
+                                        seus dados atualizados.</p>
                                     {% else %}
-                                        <p class="mb-1 text-uppercase small text-warning">Atenção</p>
-                                        <h3 class="font-weight-bold mb-2">Cadastro incompleto</h3>
-                                        <p class="mb-0">Complete seu cadastro em <a href="{% url 'atualizar-dados' %}" class="text-white"><strong>Meus dados</strong></a> para liberar todo o potencial do Fitcrol.</p>
+                                    <p class="mb-1 text-uppercase small text-warning">Atenção</p>
+                                    <h3 class="font-weight-bold mb-2">Cadastro incompleto</h3>
+                                    <p class="mb-0">Complete seu cadastro em <a href="{% url 'atualizar-dados' %}"
+                                            class="text-white"><strong>Meus dados</strong></a> para liberar todo o
+                                        potencial do Fitcrol.</p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -299,7 +316,8 @@
                     <form id="logout-form" action="{% url 'logout' %}" method="POST" style="display: none;">
                         {% csrf_token %}
                     </form>
-                    <a class="btn btn-primary" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a class="btn btn-primary" href="#"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Sair
                     </a>
                 </div>
@@ -314,4 +332,3 @@
 </body>
 
 </html>
-
