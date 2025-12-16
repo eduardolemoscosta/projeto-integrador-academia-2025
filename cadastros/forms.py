@@ -9,7 +9,7 @@ class TrainingExercicioForm(forms.ModelForm):
     """
     class Meta:
         model = TrainingExercicio
-        fields = ['usuario', 'exercicio', 'nome_programa', 'grupo', 'series', 'repeticoes', 'carga', 'tempo']
+        fields = ['usuario', 'exercicio', 'nome_programa', 'grupo', 'series', 'repeticoes', 'carga', 'tempo', 'video_url']
         widgets = {
             'nome_programa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome do programa'}),
             'grupo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Grupo muscular'}),
@@ -17,6 +17,7 @@ class TrainingExercicioForm(forms.ModelForm):
             'repeticoes': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 1000}),
             'carga': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'placeholder': 'Carga em kg'}),
             'tempo': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'placeholder': 'Tempo em minutos'}),
+            'video_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://www.youtube.com/watch?v=...'}),
         }
         labels = {
             'nome_programa': 'Nome do Programa',
@@ -25,6 +26,7 @@ class TrainingExercicioForm(forms.ModelForm):
             'repeticoes': 'Repetições',
             'carga': 'Carga (kg)',
             'tempo': 'Tempo (minutos)',
+            'video_url': 'URL do Vídeo (Como fazer o exercício)',
         }
 
     def clean_series(self):

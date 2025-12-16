@@ -11,7 +11,7 @@
         <div>
             {% if user.is_staff %}
                 <a href="{% url 'editar-perfil-staff' perfil.pk %}" class="btn btn-primary mr-2">
-                    <i class="fas fa-edit"></i> Editar Matrícula/Nome
+                    <i class="fas fa-edit"></i> Editar Matrícula
                 </a>
             {% endif %}
             <a href="{% url 'listar-usersauth' %}" class="btn btn-secondary">

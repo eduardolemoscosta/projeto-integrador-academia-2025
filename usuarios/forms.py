@@ -147,6 +147,11 @@ class StaffPerfilForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Make nome_completo read-only (cannot be edited)
+        if 'nome_completo' in self.fields:
+            self.fields['nome_completo'].widget.attrs['readonly'] = True
+            self.fields['nome_completo'].widget.attrs['class'] = 'form-control bg-light'
+            self.fields['nome_completo'].help_text = 'Este campo não pode ser editado.'
         # If matricula is already set, make it read-only
         if self.instance and self.instance.pk and self.instance.matricula:
             self.fields['matricula'].widget.attrs['readonly'] = True

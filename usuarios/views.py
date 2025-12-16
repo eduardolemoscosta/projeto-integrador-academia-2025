@@ -12,8 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from .forms import ProblemaMedicoForm, IMCForm, StaffPerfilForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from datetime import datetime
-
+ 
 
 class UsuarioCreate(CreateView):
     template_name = "usuarios/signup.html"
@@ -148,6 +149,10 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         """Marca a matrícula como utilizada se estiver sendo atribuída pela primeira vez."""
         perfil = form.save(commit=False)
+        # Preserve the original nome_completo - it cannot be edited
+        original_nome_completo = self.object.nome_completo
+        perfil.nome_completo = original_nome_completo
+        
         matricula = form.cleaned_data.get('matricula')
         
         # If matricula is being set for the first time, mark it as used
