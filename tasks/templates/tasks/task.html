@@ -3,26 +3,72 @@
 {% block title %}Lista de Tarefas{% endblock %}
 
 {% block conteudo %}
-<div class="container mt-4">
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Detalhes do Evento</h3>
+    <p class="page-subtitle">Visualize todas as informações sobre este evento.</p>
+</div>
+
+<div class="container-fluid">
     <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8 bg-white p-4 rounded shadow-sm position-relative">
-            <a href="javascript:history.back()" 
-               class="btn btn-outline-secondary position-absolute top-0 start-0 mt-2 ms-2">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </a>
-            <div class="text-center mb-4">
-                <h1 class="h4 fw-bold text-primary">{{ task.title }}</h1>
-            </div>
-            <div class="mb-3">
-                <p class="fw-bold mb-1 text-secondary">Descrição</p>
-                <p class="text-dark mb-0">{{ task.description }}</p>
-            </div>
-            <div class="mb-3">
-                <p class="fw-bold mb-1 text-secondary">Evento de:</p>
-                <p class="text-dark mb-0">{{ task.usuario }}</p>
-            </div>
-            <div class="text-end mt-3">
-                <small class="text-muted">{{ task.date }}</small>
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header" style="background: var(--gradient-primary); color: white;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-calendar-check mr-2"></i>{{ task.title }}
+                        </h4>
+                        <a href="javascript:history.back()" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left mr-1"></i>Voltar
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 rounded" style="background: var(--gradient-soft);">
+                                <h6 class="text-muted mb-2"><i class="fas fa-calendar-alt text-primary mr-2"></i>Data de Início</h6>
+                                <p class="mb-0 font-weight-bold">{{ task.start_date|date:"d/m/Y" }}</p>
+                                <small class="text-muted">{{ task.start_time|time:"H:i" }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="p-3 rounded" style="background: var(--gradient-soft);">
+                                <h6 class="text-muted mb-2"><i class="fas fa-calendar-times text-primary mr-2"></i>Data de Término</h6>
+                                <p class="mb-0 font-weight-bold">{{ task.end_date|date:"d/m/Y" }}</p>
+                                <small class="text-muted">{{ task.end_time|time:"H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2"><i class="fas fa-user-circle text-primary mr-2"></i>Criado por</h6>
+                        <p class="mb-0">
+                            <span class="badge badge-primary" style="background: var(--gradient-primary); color: white; padding: 0.5rem 1rem;">
+                                {{ task.usuario.username }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3"><i class="fas fa-align-left text-primary mr-2"></i>Descrição</h6>
+                        <div class="p-3 rounded" style="background: var(--gradient-soft); min-height: 100px;">
+                            <p class="mb-0">{{ task.description|linebreaks }}</p>
+                        </div>
+                    </div>
+
+                    {% if user.is_staff %}
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'edit-task' task.id %}" class="btn btn-warning">
+                            <i class="fas fa-edit mr-2"></i>Editar
+                        </a>
+                        <a href="{% url 'delete-task' task.id %}" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este evento?');">
+                            <i class="fas fa-trash-alt mr-2"></i>Excluir
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

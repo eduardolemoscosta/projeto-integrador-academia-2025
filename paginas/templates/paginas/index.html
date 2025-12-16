@@ -14,6 +14,7 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href={% static "css/sb-admin-2.min.css" %} rel="stylesheet">
     <link href={% static "css/custom.css" %} rel="stylesheet">
 </head>
@@ -203,7 +204,7 @@
 </nav>
 
                 <div
-                    class="app-shell container-fluid py-5 {% block page_container_class %}home-dashboard{% endblock %}">
+                    class="app-shell container-fluid py-5 page-content {% block page_container_class %}home-dashboard{% endblock %}">
                     {% block conteudo %}
                     <div class="dashboard-hero shadow-lg rounded-lg mb-5">
                         <div class="row align-items-center">
@@ -238,6 +239,65 @@
                                             class="text-white"><strong>Meus dados</strong></a> para liberar todo o
                                         potencial do Fitcrol.</p>
                                     {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção sobre o tema Academia -->
+                    <div class="row mb-5">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-lg" style="background: var(--gradient-primary); color: white; overflow: hidden;">
+                                <div class="card-body p-5 position-relative">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
+                                            <h2 class="display-5 font-weight-bold mb-3">
+                                                <i class="fas fa-dumbbell mr-3"></i>
+                                                Transforme seu Corpo, Transforme sua Vida
+                                            </h2>
+                                            <p class="lead mb-4" style="opacity: 0.95;">
+                                                O <strong>Fitcrol</strong> é sua plataforma completa para gerenciar sua jornada fitness. 
+                                                Acompanhe seus treinos, monitore seu progresso físico e mantenha-se organizado com nossa 
+                                                agenda inteligente. Tudo em um só lugar para você alcançar seus objetivos.
+                                            </p>
+                                            <div class="row mt-4">
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-check-circle fa-2x mr-3" style="opacity: 0.9;"></i>
+                                                        <div>
+                                                            <strong>Treinos Personalizados</strong>
+                                                            <p class="mb-0 small" style="opacity: 0.85;">Programas adaptados às suas necessidades</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-chart-line fa-2x mr-3" style="opacity: 0.9;"></i>
+                                                        <div>
+                                                            <strong>Acompanhamento Completo</strong>
+                                                            <p class="mb-0 small" style="opacity: 0.85;">Monitore sua evolução física</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-calendar-check fa-2x mr-3" style="opacity: 0.9;"></i>
+                                                        <div>
+                                                            <strong>Organização Total</strong>
+                                                            <p class="mb-0 small" style="opacity: 0.85;">Agenda seus treinos e avaliações</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                                            <div class="glass-card" style="background: rgba(255, 255, 255, 0.15);">
+                                                <i class="fas fa-heartbeat fa-5x mb-3" style="opacity: 0.9;"></i>
+                                                <h4 class="font-weight-bold">Sua Jornada Começa Aqui</h4>
+                                                <p class="mb-0" style="opacity: 0.9;">Comece hoje mesmo a transformar seu corpo e alcançar seus objetivos!</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -327,6 +387,7 @@
     <script src={% static "bootstrap/js/bootstrap.bundle.min.js" %}></script>
     <script src={% static "jquery-easing/jquery.easing.min.js" %}></script>
     <script src={% static "js/sb-admin-2.min.js" %}></script>
+    <script src={% static "js/button-animations.js" %}></script>
 </body>
 
 </html>

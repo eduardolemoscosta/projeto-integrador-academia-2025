@@ -3,49 +3,61 @@
 {% load static %}
 
 {% block conteudo %}
-<div class="container my-5">
-    <h3 class="text-center mb-5">Avaliações</h3>
-    <hr>
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Avaliações Físicas</h3>
+    <p class="page-subtitle">Acompanhe o histórico completo de avaliações físicas e medidas corporais.</p>
+</div>
 
-    <form action="?" method="GET" class="row g-3 align-items-center justify-content-center mb-4">
-        <div class="col-md-6 col-sm-8">
-            <input type="text" name="nome_completo" value="{{ request.GET.nome_completo }}" class="form-control" autocomplete="off" placeholder="Usuário">
+<div class="container-fluid">
+
+    <form action="?" method="GET" class="row g-3 align-items-center search-panel mb-4">
+        <div class="col-md-6">
+            <input type="text" name="nome_completo" value="{{ request.GET.nome_completo }}" class="form-control search-input" autocomplete="off" placeholder="Buscar por nome do usuário">
         </div>
-        <div class="col-md-3 col-sm-4 d-flex justify-content-start">
-            <button type="submit" class="btn btn-success mr-2"><i class="fas fa-search"></i> Buscar</button>
-            <a href="{% url 'listar-avaliacoes' %}" class="btn btn-light"><i class="fas fa-times"></i> Limpar</a>
+        <div class="col-md-6 d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Buscar</button>
+            <a href="{% url 'listar-avaliacoes' %}" class="btn btn-outline-primary"><i class="fas fa-times mr-2"></i>Limpar</a>
+            {% if request.user.is_staff %}
+                <a href="{% url 'cadastrar-avaliacao' %}" class="btn btn-success ml-auto">
+                    <i class="fas fa-plus mr-2"></i>Nova Avaliação
+                </a>
+            {% endif %}
         </div>
     </form>
-    <hr>
-
-    <div class="d-flex justify-content-between mb-4">
-        {% if request.user.is_staff %}
-        <a href="{% url 'cadastrar-avaliacao' %}" class="btn btn-primary btn-sm">Adicionar Avaliação Física</a>
-        {% endif %}
-    </div>
 
     <div class="row">
         {% for avaliacao in object_list %}
         <div class="col-12 mb-4">
             <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center">
-                    <h5 class="m-0">Avaliação #{{ avaliacao.pk }}</h5>
+                <div class="card-header" style="background: var(--gradient-primary); color: white; text-align: center;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            <strong>{{ avaliacao.data|date:"d/m/Y" }}</strong>
+                        </div>
+                        <h5 class="m-0">Avaliação #{{ avaliacao.pk }}</h5>
+                        <div>
+                            <i class="fas fa-clock mr-2"></i>
+                            <strong>{{ avaliacao.hora|time:"H:i" }}</strong>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 col-12 mb-3">
-                            <ul class="list-unstyled">
-                                <li><strong>Usuário:</strong> {{ avaliacao.usuario }}</li>
-                                <li><strong>Data:</strong> {{ avaliacao.data }}</li>
-                                <li><strong>Hora:</strong> {{ avaliacao.hora }}</li>
-                                <li><strong>Peso:</strong> {{ avaliacao.peso }} kg</li>
-                                <li><strong>Altura:</strong> {{ avaliacao.altura }} cm</li>
-                                <li><strong>Idade:</strong> {{ avaliacao.idade }} anos</li>
-                            </ul>
+                            <div class="p-3 rounded mb-3" style="background: var(--gradient-soft);">
+                                <h6 class="mb-3"><i class="fas fa-user mr-2 text-primary"></i>Informações Básicas</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2"><i class="fas fa-user-circle text-primary mr-2"></i><strong>Usuário:</strong> {{ avaliacao.usuario }}</li>
+                                    <li class="mb-2"><i class="fas fa-birthday-cake text-primary mr-2"></i><strong>Idade:</strong> {{ avaliacao.idade }} anos</li>
+                                    <li class="mb-2"><i class="fas fa-weight text-primary mr-2"></i><strong>Peso:</strong> {{ avaliacao.peso }} kg</li>
+                                    <li class="mb-2"><i class="fas fa-ruler-vertical text-primary mr-2"></i><strong>Altura:</strong> {{ avaliacao.altura }} cm</li>
+                                </ul>
+                            </div>
                         </div>
 
                         <div class="col-md-8 col-12">
-                            <h6 class="mb-4">Medidas Corporais</h6>
+                            <h6 class="mb-3"><i class="fas fa-ruler-combined mr-2 text-primary"></i>Medidas Corporais</h6>
                             <div class="row">
                                 <div class="col-6">
                                     <ul class="list-unstyled">
@@ -97,8 +109,17 @@
         </div>
         {% empty %}
         <div class="col-12">
-            <div class="alert alert-info text-center">
-                Nenhuma Avaliação registrada.
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-heartbeat fa-4x text-muted mb-4" style="opacity: 0.3;"></i>
+                    <h4 class="text-muted mb-3">Nenhuma avaliação registrada</h4>
+                    <p class="text-muted mb-4">Comece registrando sua primeira avaliação física para acompanhar sua evolução!</p>
+                    {% if request.user.is_staff %}
+                        <a href="{% url 'cadastrar-avaliacao' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-plus mr-2"></i>Registrar Primeira Avaliação
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endfor %}

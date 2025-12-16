@@ -3,25 +3,28 @@
 {% block title %}Lista de Eventos{% endblock %}
 
 {% block conteudo %}
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Lista de Eventos</h3>
+    <p class="page-subtitle">Visualize e gerencie todos os eventos e compromissos agendados.</p>
+</div>
+
 <div class="container-fluid">
-    <h1 class="mb-3">Lista de Eventos Treinos</h1>
-    <ol class="breadcrumb mb-3">
-        <li class="breadcrumb-item active">Eventos</li>
-    </ol>
     {% if user.is_staff %}
-    <div class="row mb-3">
-        <div class="col-12 col-sm-auto">
-            <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary d-flex align-items-center">
-                <i class="fas fa-plus mr-2"></i> Adicionar evento
+    <div class="row mb-4">
+        <div class="col-12">
+            <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary btn-lg shadow-sm">
+                <i class="fas fa-plus mr-2"></i> Adicionar Novo Evento
             </a>
         </div>
     </div>
     {% endif %}
 
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-table mr-1"></i>
-            Eventos
+    <div class="card shadow-lg">
+        <div class="card-header" style="background: var(--gradient-primary); color: white;">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-alt mr-2"></i>
+                Eventos Agendados
+            </h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -37,20 +40,44 @@
                     </thead>
                     <tbody>
                         {% for task in tasks %}
-                        <tr class="task-item">
+                        <tr class="task-item clickable-row" onclick="window.location.href='/task/{{ task.id }}'">
                             <td>
-                                <a href="/task/{{ task.id }}" class="text-decoration-none text-dark">{{ task.title }}</a>
+                                <a href="/task/{{ task.id }}" class="text-decoration-none font-weight-bold text-primary">
+                                    <i class="fas fa-calendar-check mr-2"></i>{{ task.title }}
+                                </a>
                             </td>
-                            <td style="color: #6c757d;" class="fs-6">{{ task.start_date }}</td>
-                            <td style="color: #6c757d;" class="fs-6">{{ task.end_date }}</td>
-                            <td style="color: #6c757d;" class="fs-6">{{ task.usuario.username }}</td>
+                            <td>
+                                <i class="fas fa-calendar text-primary mr-1"></i>
+                                {{ task.start_date|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                <i class="fas fa-calendar-times text-primary mr-1"></i>
+                                {{ task.end_date|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                <i class="fas fa-user-circle text-primary mr-1"></i>
+                                {{ task.usuario.username }}
+                            </td>
                             <td>
                                 {% if user.is_staff %}
-                                <a href="{% url 'delete-task' task.id %}" class="text-danger mr-2"><i class="fas fa-trash"></i></a>
-                                <a href="{% url 'edit-task' task.id %}" class="text-warning"><i class="fas fa-edit"></i></a>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'edit-task' task.id %}" class="btn btn-warning btn-sm" onclick="event.stopPropagation();">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete-task' task.id %}" class="btn btn-danger btn-sm" onclick="event.stopPropagation(); return confirm('Tem certeza que deseja excluir este evento?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
                                 {% else %}
-                                <span class="text-muted">Apenas visualização</span>
+                                <span class="badge badge-secondary">Apenas visualização</span>
                                 {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                                <p class="text-muted mb-0">Nenhum evento encontrado.</p>
                             </td>
                         </tr>
                         {% endfor %}

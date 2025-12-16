@@ -21,7 +21,10 @@ class UsuarioCreate(CreateView):
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
-        
+        """
+        Processa o formulário de criação de usuário.
+        Cria o perfil e associa o usuário ao grupo apropriado.
+        """
         grupo, _ = Group.objects.get_or_create(name="Docente") #ou Discentes
 
         # Get nome_completo, email, and matricula from form before saving
@@ -53,7 +56,13 @@ class UsuarioCreate(CreateView):
             perfil.matricula = matricula
         perfil.save()
 
+        messages.success(self.request, 'Conta criada com sucesso! Faça login para continuar.')
         return url
+
+    def form_invalid(self, form):
+        """Exibe mensagem de erro quando o formulário é inválido."""
+        messages.error(self.request, 'Por favor, corrija os erros no formulário.')
+        return super().form_invalid(form)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -63,6 +72,10 @@ class UsuarioCreate(CreateView):
 
 
 class PerfilList(ListView):
+    """
+    Lista de perfis de usuários.
+    Otimizada com select_related para reduzir queries ao banco de dados.
+    """
     login_url = reverse_lazy('login')  
     model = Perfil
     template_name = 'cadastros/listas/userauth.html'
@@ -71,17 +84,17 @@ class PerfilList(ListView):
     def get_queryset(self):
         # Se o usuário é staff, ele pode ver todos os perfis
         if self.request.user.is_staff:
-            queryset = Perfil.objects.all()
+            queryset = Perfil.objects.select_related('usuario').all()
         else:
             # Usuário comum só pode ver o próprio perfil
-            queryset = Perfil.objects.filter(usuario=self.request.user)
+            queryset = Perfil.objects.select_related('usuario').filter(usuario=self.request.user)
         
         # Aplicar o filtro de nome_completo, se existir
         txt_nome = self.request.GET.get('nome_completo')
         if txt_nome:
-            queryset = queryset.filter(nome_completo__icontains=txt_nome)  # Ajuste aqui
+            queryset = queryset.filter(nome_completo__icontains=txt_nome)
         
-        return queryset
+        return queryset.order_by('-id')
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -133,7 +146,7 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
         return perfil
     
     def form_valid(self, form):
-        """Mark matricula as used if it's being assigned for the first time"""
+        """Marca a matrícula como utilizada se estiver sendo atribuída pela primeira vez."""
         perfil = form.save(commit=False)
         matricula = form.cleaned_data.get('matricula')
         
@@ -145,7 +158,13 @@ class StaffPerfilUpdate(LoginRequiredMixin, UpdateView):
             ).update(utilizada=True)
         
         perfil.save()
+        messages.success(self.request, 'Perfil atualizado com sucesso!')
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        """Exibe mensagem de erro quando o formulário é inválido."""
+        messages.error(self.request, 'Por favor, corrija os erros no formulário.')
+        return super().form_invalid(form)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -164,12 +183,16 @@ def custom_logout_view(request):
 
 @login_required
 def calcular_imc(request):
+    """
+    View para calcular e registrar o IMC do usuário.
+    """
     if request.method == 'POST':
         form = IMCForm(request.POST)
         if form.is_valid():
             imc_registro = form.save(commit=False)
             imc_registro.user = request.user
             imc_registro.save()
+            messages.success(request, f'IMC registrado com sucesso! Seu IMC atual é {imc_registro.imc:.2f}.')
             return redirect('progresso_imc')
     else:
         form = IMCForm()
@@ -178,14 +201,68 @@ def calcular_imc(request):
 
 @login_required
 def progresso_imc(request):
-    registros = IMCRegistro.objects.filter(user=request.user).order_by('-data_registro')
-    return render(request, 'progresso_imc.html', {'registros': registros})
+    """
+    Exibe o histórico de registros de IMC do usuário com estatísticas e análises.
+    Otimizada para reduzir queries ao banco de dados.
+    """
+    registros = IMCRegistro.objects.filter(user=request.user).select_related('user').order_by('-data_registro')
+    
+    # Calcular estatísticas
+    estatisticas = {}
+    if registros.exists():
+        imc_values = [r.imc for r in registros]
+        peso_values = [r.peso for r in registros]
+        
+        estatisticas = {
+            'total_registros': registros.count(),
+            'imc_atual': imc_values[0] if imc_values else None,
+            'imc_medio': sum(imc_values) / len(imc_values) if imc_values else None,
+            'imc_maior': max(imc_values) if imc_values else None,
+            'imc_menor': min(imc_values) if imc_values else None,
+            'peso_atual': peso_values[0] if peso_values else None,
+            'peso_maior': max(peso_values) if peso_values else None,
+            'peso_menor': min(peso_values) if peso_values else None,
+            'variacao_peso': peso_values[0] - peso_values[-1] if len(peso_values) > 1 else 0,
+            'variacao_imc': imc_values[0] - imc_values[-1] if len(imc_values) > 1 else 0,
+            'primeiro_registro': registros.last(),
+            'ultimo_registro': registros.first(),
+        }
+        
+        # Calcular valores absolutos para exibição
+        estatisticas['variacao_imc_abs'] = abs(estatisticas['variacao_imc'])
+        estatisticas['variacao_peso_abs'] = abs(estatisticas['variacao_peso'])
+        
+        # Determinar tendência
+        if len(imc_values) >= 2:
+            if imc_values[0] > imc_values[-1]:
+                estatisticas['tendencia'] = 'diminuindo'
+                estatisticas['tendencia_icon'] = 'fa-arrow-down'
+                estatisticas['tendencia_color'] = 'success'
+            elif imc_values[0] < imc_values[-1]:
+                estatisticas['tendencia'] = 'aumentando'
+                estatisticas['tendencia_icon'] = 'fa-arrow-up'
+                estatisticas['tendencia_color'] = 'warning'
+            else:
+                estatisticas['tendencia'] = 'estável'
+                estatisticas['tendencia_icon'] = 'fa-minus'
+                estatisticas['tendencia_color'] = 'info'
+        else:
+            estatisticas['tendencia'] = None
+    
+    return render(request, 'progresso_imc.html', {
+        'registros': registros,
+        'estatisticas': estatisticas
+    })
 
 def apagar_imc(request, imc_id):
-    
+    """
+    View para excluir um registro de IMC.
+    Usuários só podem excluir seus próprios registros.
+    """
     imc_registro = get_object_or_404(IMCRegistro, id=imc_id, user=request.user) 
     
     imc_registro.delete()
+    messages.success(request, 'Registro de IMC excluído com sucesso!')
     
     return redirect('progresso_imc')
 
@@ -206,40 +283,18 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
         return perfil
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        perfil = self.get_object()
-        
-        # Get IMC history for this user
-        imc_history = IMCRegistro.objects.filter(user=perfil.usuario).order_by('-data_registro')
-        
-        # Calculate statistics
-        total_registros = imc_history.count()
-        if total_registros > 0:
-            imc_sum = sum(registro.imc for registro in imc_history)
-            imc_medio = imc_sum / total_registros
-            ultimo_imc = imc_history[0].imc if imc_history else None
-        else:
-            imc_medio = None
-            ultimo_imc = None
-        
-        context['imc_history'] = imc_history
-        context['titulo'] = f"Perfil de {perfil.nome_completo or perfil.usuario.username}"
-        context['total_registros'] = total_registros
-        context['imc_medio'] = imc_medio
-        context['ultimo_imc'] = ultimo_imc
-        
-   # Esta função começa com 4 espaços
-    def get_context_data(self, **kwargs):
-    # 8 espaços
+        """
+        Adiciona dados de contexto para a visualização do perfil do usuário.
+        Inclui histórico de IMC, estatísticas e problemas médicos.
+        Otimizada com select_related para reduzir queries ao banco de dados.
+        """
         context = super().get_context_data(**kwargs)
         perfil = self.get_object()
 
-    # Get IMC History for this user
-    # 8 espaços
-        imc_history = IMCRegistro.objects.filter(user=perfil.usuario).order_by('-data_registro')
+        # Obter histórico de IMC para este usuário (otimizado)
+        imc_history = IMCRegistro.objects.filter(user=perfil.usuario).select_related('user').order_by('-data_registro')
 
-    # Get IMC calculation
-    # 8 espaços
+        # Calcular estatísticas de IMC
         if imc_history:
             total_registros = imc_history.count()
             imc_sum = sum(registro.imc for registro in imc_history)
@@ -250,48 +305,37 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
             imc_medio = None
             ultimo_imc = None
 
-    # 8 espaços
+        # Adicionar dados ao contexto (otimizado)
         context['imc_history'] = imc_history
         context['titulo'] = f"Perfil de {perfil.nome_completo or perfil.usuario.username}"
         context['total_registros'] = total_registros
         context['imc_medio'] = imc_medio
         context['ultimo_imc'] = ultimo_imc
+        context['meus_problemas'] = ProblemaMedico.objects.filter(usuario=perfil.usuario).select_related('usuario')
 
-    #
-    # AQUI ESTÁ A LINHA NOVA QUE ADICIONAMOS:
-    #
-    # 8 espaços
-        context['meus_problemas'] = ProblemaMedico.objects.filter(usuario=perfil.usuario)
-
-    # 8 espaços
         return context
 
-@login_required # Garante que só usuários logados acedam
+@login_required
 def adicionar_problema_medico(request):
+    """
+    View para adicionar um problema médico ao perfil do usuário.
+    """
     if request.method == 'POST':
-        # Se o usuário enviou o formulário
         form = ProblemaMedicoForm(request.POST)
         if form.is_valid():
-            # Salva no banco, mas não permanentemente ainda
             problema = form.save(commit=False)
-            
-            # ATRIBUI O USUÁRIO LOGADO! Esta é a ligação.
             problema.usuario = request.user 
-            
-            # Agora sim, salva no banco
             problema.save()
-            
-            # Redireciona para outra página (ex: o perfil)
-            # Mude 'nome_da_url_do_perfil' para o nome real da sua URL de perfil
+            messages.success(request, 'Problema médico registrado com sucesso!')
             return redirect('detalhes-usuario', pk=request.user.id)
+        else:
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
-        
         form = ProblemaMedicoForm()
 
     context = {
         'form': form
     }
-
     
     return render(request, 'usuarios/adicionar_problema.html', context)
 
@@ -381,6 +425,15 @@ def gerar_matricula(request):
     return render(request, 'usuarios/criar_matricula.html', context)
 
 def excluir_perfil(request, id):
+    """
+    View para excluir um perfil de usuário.
+    Apenas staff pode excluir perfis.
+    """
+    if not request.user.is_staff:
+        messages.error(request, 'Você não tem permissão para realizar esta ação.')
+        return redirect('listar-usersauth')
+    
     perfil = get_object_or_404(Perfil, id=id)
     perfil.delete()
+    messages.success(request, 'Perfil excluído com sucesso!')
     return redirect('listar-usersauth')

@@ -4,29 +4,49 @@
 {% load crispy_forms_tags %}
 
 {% block conteudo %}
-<div class="container-fluid bg-light py-5 vh-100 d-flex align-items-center">
-    <div class="col-12 col-md-8 col-lg-6 mx-auto">
-        {% if request.user.is_authenticated %}
-            <div class="card shadow-lg">
-                <div class="card-header text-center bg-primary text-white">
-                    <h4 class="mb-0">{{ titulo }}</h4>
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">{{ titulo }}</h3>
+    <p class="page-subtitle">Preencha os campos abaixo para {{ botao|lower }} o registro.</p>
+</div>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            {% if request.user.is_authenticated %}
+                <div class="card shadow-lg">
+                    <div class="card-header" style="background: var(--gradient-primary); color: white; text-align: center;">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit mr-2"></i>{{ titulo }}
+                        </h4>
+                    </div>
+                    <div class="card-body py-4 px-4">
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save mr-2"></i>{{ botao }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body py-5 px-4">
-                    <form method="POST" novalidate>
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">{{ botao }}</button>
-                    </form>
+            {% else %}
+                <div class="card shadow-lg">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-lock fa-4x text-muted mb-4" style="opacity: 0.3;"></i>
+                        <h4 class="text-muted mb-3">Acesso Restrito</h4>
+                        <p class="text-muted mb-4">Você precisa estar logado para cadastrar um registro.</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Fazer Login
+                        </a>
+                    </div>
                 </div>
-            </div>
-        {% else %}
-            <div class="alert alert-danger text-center" role="alert">
-                Você precisa estar logado para cadastrar um registro.
-            </div>
-            <div class="d-flex justify-content-center mt-4">
-                <a href="{% url 'login' %}" class="btn btn-success btn-lg w-100">Fazer Login</a>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 </div>
 

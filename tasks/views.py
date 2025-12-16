@@ -23,13 +23,17 @@ class TaskListView(LoginRequiredMixin, ListView):
     paginate_by = 3
 
     def get_queryset(self):
+        """
+        Retorna queryset otimizado de tarefas.
+        Staff vê todas as tarefas, usuários regulares veem apenas tarefas criadas por staff.
+        """
         # Show all events created by staff to all users
         # Staff can see all events, regular users can only see staff-created events
         if self.request.user.is_staff:
-            return Task.objects.all()
+            return Task.objects.select_related('usuario').all()
         else:
             # Regular users see events created by staff users
-            return Task.objects.filter(usuario__is_staff=True)
+            return Task.objects.select_related('usuario').filter(usuario__is_staff=True)
 
 class TaskDetailView(DetailView):
     model = Task
@@ -106,12 +110,12 @@ class CalendarView(TemplateView):
         is_authenticated = user.is_authenticated
 
         if user.is_superuser or user.is_staff:
-            events_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
+            events_today = Task.objects.select_related('usuario').filter(start_date__lte=today, end_date__gte=today)
         elif not is_authenticated:
             events_today = Task.objects.none()
         else:
             # Regular users see events created by staff
-            events_today = Task.objects.filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
+            events_today = Task.objects.select_related('usuario').filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
 
         context['events_today'] = events_today
         return context
@@ -120,12 +124,12 @@ class TaskEventsView(View):
     def get(self, request, *args, **kwargs):
         is_authenticated = request.user.is_authenticated
         if request.user.is_superuser or request.user.is_staff:  
-            tasks = Task.objects.all()
+            tasks = Task.objects.select_related('usuario').all()
         elif not is_authenticated:
             tasks = Task.objects.none()
         else:
             # Regular users see events created by staff
-            tasks = Task.objects.filter(usuario__is_staff=True)
+            tasks = Task.objects.select_related('usuario').filter(usuario__is_staff=True)
 
         events = []
         for task in tasks:
@@ -157,14 +161,14 @@ class EventCountView(LoginRequiredMixin, TemplateView):
         total_tasks = Task.objects.none()
 
         if user.is_superuser or user.is_staff:
-            tasks_today = Task.objects.filter(start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(start_date__gte=start_of_week, end_date__lte=end_of_week)
-            total_tasks = Task.objects.all()
+            tasks_today = Task.objects.select_related('usuario').filter(start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.select_related('usuario').filter(start_date__gte=start_of_week, end_date__lte=end_of_week)
+            total_tasks = Task.objects.select_related('usuario').all()
         else:
             # Regular users see events created by staff
-            tasks_today = Task.objects.filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
-            tasks_week = Task.objects.filter(usuario__is_staff=True, start_date__gte=start_of_week, end_date__lte=end_of_week)
-            total_tasks = Task.objects.filter(usuario__is_staff=True)
+            tasks_today = Task.objects.select_related('usuario').filter(usuario__is_staff=True, start_date__lte=today, end_date__gte=today)
+            tasks_week = Task.objects.select_related('usuario').filter(usuario__is_staff=True, start_date__gte=start_of_week, end_date__lte=end_of_week)
+            total_tasks = Task.objects.select_related('usuario').filter(usuario__is_staff=True)
 
         context['tasks_today_count'] = tasks_today.count()
         context['tasks_week_count'] = tasks_week.count()
@@ -178,10 +182,10 @@ class ChartYear(LoginRequiredMixin, View):
         user = request.user
         
         if user.is_superuser or user.is_staff:
-            tasks = Task.objects.all()
+            tasks = Task.objects.select_related('usuario').all()
         else:
             # Regular users see events created by staff
-            tasks = Task.objects.filter(usuario__is_staff=True)
+            tasks = Task.objects.select_related('usuario').filter(usuario__is_staff=True)
 
         for task in tasks:
             if task.start_date:

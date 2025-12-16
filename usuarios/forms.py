@@ -59,13 +59,69 @@ class UsuarioForm(UserCreationForm):
         return matricula
 
 class IMCForm(forms.ModelForm):
+    """
+    Formulário para registro de IMC (Índice de Massa Corporal).
+    Inclui validações para garantir valores realistas.
+    """
     class Meta:
         model = IMCRegistro
         fields = ['peso', 'altura']
         widgets = {
-            'peso': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Peso em kg'}),
-            'altura': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Altura em metros'}),
+            'peso': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Peso em kg',
+                'step': '0.1',
+                'min': '20',
+                'max': '300'
+            }),
+            'altura': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Altura em metros (ex: 1.75)',
+                'step': '0.01',
+                'min': '0.5',
+                'max': '2.5'
+            }),
         }
+        labels = {
+            'peso': 'Peso (kg)',
+            'altura': 'Altura (metros)',
+        }
+
+    def clean_peso(self):
+        """Valida que o peso seja um valor realista."""
+        peso = self.cleaned_data.get('peso')
+        if peso:
+            if peso < 20:
+                raise ValidationError('O peso deve ser pelo menos 20 kg.')
+            if peso > 300:
+                raise ValidationError('O peso não pode ser maior que 300 kg.')
+        return peso
+
+    def clean_altura(self):
+        """Valida que a altura seja um valor realista."""
+        altura = self.cleaned_data.get('altura')
+        if altura:
+            if altura < 0.5:
+                raise ValidationError('A altura deve ser pelo menos 0.5 metros.')
+            if altura > 2.5:
+                raise ValidationError('A altura não pode ser maior que 2.5 metros.')
+        return altura
+
+    def clean(self):
+        """Validação cruzada entre peso e altura."""
+        cleaned_data = super().clean()
+        peso = cleaned_data.get('peso')
+        altura = cleaned_data.get('altura')
+        
+        if peso and altura:
+            # Calcular IMC para verificar se está em um range razoável
+            imc = peso / (altura ** 2)
+            if imc < 10:
+                raise ValidationError('Os valores informados resultam em um IMC muito baixo. Verifique os dados.')
+            if imc > 60:
+                raise ValidationError('Os valores informados resultam em um IMC muito alto. Verifique os dados.')
+        
+        return cleaned_data
 
 class ProblemaMedicoForm(forms.ModelForm):
     class Meta:

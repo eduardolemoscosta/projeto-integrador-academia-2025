@@ -11,18 +11,35 @@
     <div class="row" id="calendar-container">
         <!-- Coluna de eventos do dia -->
         <div class="col-md-3 mb-3" id="events-column">
-            <h5>Eventos do dia:</h5>
+            <h5>
+                <i class="fas fa-calendar-day mr-2"></i>
+                Eventos de Hoje
+            </h5>
             {% for event in events_today %}
-                <div class="card mb-2">
+                <div class="card mb-3 shadow-sm">
                     <div class="card-body">
-                        <p class="card-text"><strong>Evento de:</strong> {{ event.usuario.username }}</p>
-                        <h5 class="card-title">{{ event.title }}</h5>
-                        <p class="card-text"><strong>Descrição:</strong> {{ event.description }}</p>
-                        <a href="/task/{{ event.id }}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-user-circle text-primary mr-2"></i>
+                            <small class="text-muted"><strong>{{ event.usuario.username }}</strong></small>
+                        </div>
+                        <h6 class="card-title mb-2">{{ event.title }}</h6>
+                        <p class="card-text small mb-3">{{ event.description|truncatewords:15 }}</p>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock text-primary mr-2"></i>
+                            <small class="text-muted">
+                                {{ event.start_time|time:"H:i" }} - {{ event.end_time|time:"H:i" }}
+                            </small>
+                        </div>
+                        <a href="/task/{{ event.id }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-eye mr-1"></i> Ver Detalhes
+                        </a>
                     </div>
                 </div>
             {% empty %}
-                <p class="text-muted">Não há eventos para hoje.</p>
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                    <p class="text-muted mb-0">Não há eventos para hoje.</p>
+                </div>
             {% endfor %}
         </div>
         <!-- Coluna do calendário -->
@@ -33,10 +50,10 @@
     </div>
 </div>
 {% if request.user.is_staff %}
-<div class="row mb-3">
-    <div class="col-12 col-sm-auto">
-        <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary d-flex align-items-center">
-            <i class="fas fa-plus mr-2"></i> Adicionar evento
+<div class="row mb-4">
+    <div class="col-12">
+        <a id="add-link" href="{% url 'new-task' %}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fas fa-plus mr-2"></i> Adicionar Novo Evento
         </a>
     </div>
 </div>

@@ -2,21 +2,63 @@
 {% load crispy_forms_tags %}
 
 {% block conteudo %}
-<div class="container mt-5">
-    <h2 class="text-center text-primary mb-4">Calcular IMC</h2>
-    
-    <!-- Calculator Form -->
-    <div class="card shadow-lg p-4 mb-4">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary btn-block mt-4">Calcular</button>
-        </form>
-    </div>
+<div class="page-intro mb-4">
+    <h3 class="page-title mb-2">Calculadora de IMC</h3>
+    <p class="page-subtitle">Calcule seu Índice de Massa Corporal e acompanhe sua evolução ao longo do tempo.</p>
+</div>
 
-    <!-- Link to view history -->
-    <div class="text-center mt-4">
-        <a href="{% url 'progresso_imc' %}" class="btn btn-outline-primary">Ver Histórico de IMC</a>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Calculator Form -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header" style="background: var(--gradient-primary); color: white;">
+                    <h4 class="mb-0 text-center">
+                        <i class="fas fa-calculator mr-2"></i>Calcule seu IMC
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="font-weight-bold">
+                                    <i class="fas fa-weight text-primary mr-2"></i>Peso (kg)
+                                </label>
+                                {{ form.peso }}
+                                <small class="form-text text-muted">Digite seu peso em quilogramas</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="font-weight-bold">
+                                    <i class="fas fa-ruler-vertical text-primary mr-2"></i>Altura (metros)
+                                </label>
+                                {{ form.altura }}
+                                <small class="form-text text-muted">Digite sua altura em metros (ex: 1.75)</small>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
+                            <i class="fas fa-calculator mr-2"></i>Calcular IMC
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mb-4" style="background: var(--gradient-soft);">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-info-circle text-primary mr-2"></i>Sobre o IMC</h5>
+                    <p class="mb-2">O <strong>Índice de Massa Corporal (IMC)</strong> é uma medida utilizada para avaliar se uma pessoa está com peso adequado em relação à sua altura.</p>
+                    <p class="mb-0">Acompanhar seu IMC regularmente ajuda a monitorar sua saúde e evolução física ao longo do tempo.</p>
+                </div>
+            </div>
+
+            <!-- Link to view history -->
+            <div class="text-center">
+                <a href="{% url 'progresso_imc' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-chart-line mr-2"></i>Ver Histórico de IMC
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
