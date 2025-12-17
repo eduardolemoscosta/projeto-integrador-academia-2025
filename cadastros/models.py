@@ -68,6 +68,7 @@ class TrainingExercicio(models.Model):
     repeticoes = models.PositiveIntegerField(default=10)
     carga = models.IntegerField(default=0, verbose_name="Carga (kg)")
     tempo = models.IntegerField(default=0, verbose_name="Minutos (mn)")  
+    video_url = models.URLField(max_length=500, blank=True, null=True, verbose_name="URL do Vídeo")
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
 
     class Meta:

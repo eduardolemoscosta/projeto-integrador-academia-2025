@@ -83,6 +83,14 @@
                             </div>
                         </div>
                     </div>
+                    {% if training_exercicio.video_url %}
+                    <hr class="my-3">
+                    <div class="text-center">
+                        <a href="{{ training_exercicio.video_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+                            <i class="fas fa-video mr-2"></i>Ver Vídeo do Exercício
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0">
                     {% if user.is_staff or training_exercicio.usuario == user %}

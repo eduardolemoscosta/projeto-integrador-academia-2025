@@ -10,6 +10,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django import forms
 from django.contrib import messages
+from usuarios.models import Perfil
 
 # Create Views
 class CampoCreate(LoginRequiredMixin, CreateView):
@@ -68,8 +69,25 @@ class TrainingExercicioCreate(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('listar-training-exercicios')
 
     def form_valid(self, form):
-        """Define automaticamente o usuário como o usuário logado e exibe mensagem de sucesso."""
-        form.instance.usuario = self.request.user
+        """
+        Define automaticamente o usuário do programa.
+        
+        - Se for staff e existir um parâmetro de usuário na URL (?usuario_id),
+          o programa será criado para esse usuário específico.
+        - Caso contrário, o programa é criado para o próprio usuário logado.
+        """
+        from django.contrib.auth.models import User
+
+        usuario_id = self.request.GET.get('usuario_id') or self.request.POST.get('usuario_id')
+
+        if self.request.user.is_staff and usuario_id:
+            # Staff pode criar programas diretamente para um usuário específico
+            target_user = get_object_or_404(User, pk=usuario_id)
+            form.instance.usuario = target_user
+        else:
+            # Usuário comum cria programas apenas para si mesmo
+            form.instance.usuario = self.request.user
+
         messages.success(self.request, 'Programa de treinamento criado com sucesso!')
         return super().form_valid(form)
 
@@ -83,7 +101,7 @@ class TrainingExercicioCreate(LoginRequiredMixin, CreateView):
         # Remove usuario field from form for regular users
         if 'usuario' in form.fields:
             if not self.request.user.is_staff:
-                # Hide usuario field for regular users - it will be set automatically
+                # Hide usuario field for regular users - it will be set automaticamente
                 form.fields['usuario'].widget = forms.HiddenInput()
                 form.fields['usuario'].required = False
         return form
@@ -93,6 +111,62 @@ class TrainingExercicioCreate(LoginRequiredMixin, CreateView):
         context['titulo'] = 'Cadastrar Treinamento'
         context['botao'] = 'Salvar'
         return context
+
+
+class TrainingExercicioCreateForPerfil(LoginRequiredMixin, CreateView):
+    """
+    View para staff criar um programa de treinamento diretamente a partir
+    da página de detalhes de um usuário específico.
+    """
+    login_url = reverse_lazy('login')
+    model = TrainingExercicio
+    form_class = TrainingExercicioForm
+    template_name = 'cadastros/form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        """Permite apenas acesso de staff e obtém o perfil alvo."""
+        if not request.user.is_staff:
+            return HttpResponseForbidden("Apenas funcionários podem criar programas para usuários.")
+
+        self.perfil = get_object_or_404(Perfil, pk=self.kwargs['perfil_pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        """Define o usuário alvo como valor inicial do campo usuario."""
+        initial = super().get_initial()
+        initial['usuario'] = self.perfil.usuario
+        return initial
+
+    def get_form(self, form_class=None):
+        """Garante que o programa será sempre associado ao usuário do perfil."""
+        form = super().get_form(form_class)
+        if 'usuario' in form.fields:
+            form.fields['usuario'].initial = self.perfil.usuario
+            # Esconde o campo para evitar alterações acidentais
+            form.fields['usuario'].widget = forms.HiddenInput()
+            form.fields['usuario'].required = False
+        return form
+
+    def form_valid(self, form):
+        """Força o vínculo do programa com o usuário do perfil selecionado."""
+        form.instance.usuario = self.perfil.usuario
+        messages.success(
+            self.request,
+            f'Programa de treinamento criado com sucesso para {self.perfil.nome_completo or self.perfil.usuario.username}!'
+        )
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """Ajusta título/botão para deixar claro o usuário alvo."""
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = f"Cadastrar Treinamento para {self.perfil.nome_completo or self.perfil.usuario.username}"
+        context['botao'] = 'Salvar'
+        context['perfil_alvo'] = self.perfil
+        return context
+
+    def get_success_url(self):
+        """Após criação, retorna para a página de detalhes do usuário."""
+        return reverse_lazy('detalhes-usuario', kwargs={'pk': self.perfil.pk})
 
 
 
