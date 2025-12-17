@@ -5,7 +5,8 @@ from .views import (
     CampoCreate, ExercicioCreate, TrainingExercicioCreate, AvaliacaoCreate,
     CampoUpdate, ExercicioUpdate, TrainingExercicioUpdate, AvaliacaoUpdate,
     CampoDelete, ExercicioDelete, TrainingExercicioDelete, AvaliacaoDelete,
-    CampoList, ExercicioList, TrainingExercicioList, AvaliacaoList
+    CampoList, ExercicioList, TrainingExercicioList, AvaliacaoList,
+    TrainingExercicioCreateForPerfil,
 )
 
 urlpatterns = [
@@ -22,6 +23,11 @@ urlpatterns = [
 
     # URLs para TrainingExercicio
     path('cadastrar/training-exercicio/', TrainingExercicioCreate.as_view(), name='cadastrar-training-exercicio'),
+    path(
+        'cadastrar/training-exercicio/perfil/<int:perfil_pk>/',
+        TrainingExercicioCreateForPerfil.as_view(),
+        name='cadastrar-training-exercicio-perfil',
+    ),
     path('editar/training-exercicio/<int:pk>/', TrainingExercicioUpdate.as_view(), name='editar-training-exercicio'),
     path('excluir/training-exercicio/<int:pk>/', TrainingExercicioDelete.as_view(), name='excluir-training-exercicio'),
     path('listar/training-exercicios/', TrainingExercicioList.as_view(), name='listar-training-exercicios'),
