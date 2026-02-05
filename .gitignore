@@ -13,7 +13,7 @@ __pycache__/
 /.env/
 
 # Arquivos de Ambiente (SENHAS)
-.env
+.env*
 .env.*
 *.env
 
