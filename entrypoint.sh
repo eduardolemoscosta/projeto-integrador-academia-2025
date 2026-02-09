@@ -13,7 +13,7 @@ python manage.py migrate --noinput
 # Coleta arquivos estáticos
 python manage.py collectstatic --noinput
 
-# Inicia Gunicorn
-exec gunicorn config.wsgi:application \
+# Inicia Gunicorn apontando para o WSGI correto do projeto
+exec gunicorn myproject.wsgi:application \
     --bind 0.0.0.0:8000 \
     --workers 3
