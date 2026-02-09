@@ -9,10 +9,13 @@ class Migration(migrations.Migration):
         ('cadastros', '0003_remove_trainingexercicio_training_and_more'),
     ]
 
+    # Ajuste para evitar erro no Postgres:
+    # O default original "Programa treino" não cabe em max_length=1,
+    # o que causava django.db.utils.DataError em produção.
     operations = [
         migrations.AddField(
             model_name='trainingexercicio',
             name='pt',
-            field=models.CharField(default='Programa treino', max_length=1),
+            field=models.CharField(default='Programa treino', max_length=50),
         ),
     ]
